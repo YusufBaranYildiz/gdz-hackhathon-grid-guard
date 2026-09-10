@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid-Guard AI | Pano ve Hücre İçi Anomali Erken Uyarı Sistemi</title>
+    <!-- Local & System Fonts (Strict Zero-Cloud / On-Premise compliant) -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+    <!-- Top Navigation & SCADA Status Bar -->
+    <header class="scada-header">
+        <div class="header-left">
+            <div class="logo-wrapper">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>GRID-GUARD <span>AI</span></h1>
+                    <span class="sub-title">PANO & HÜCRE İÇİ ANOMALİ ERKEN UYARI SİSTEMİ</span>
+                </div>
+            </div>
+            <div class="substation-badge">
+                <span class="loc-pin">📍</span>
+                <div class="loc-details">
+                    <strong>GDZ İzmir Buca TM</strong>
+                    <span>TEDAŞ 1600 kVA AG Dağıtım Panosu #1</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="cloud-policy-badge">
+                <span class="shield-icon">🛡️</span>
+                <span>ON-PREMISE EDGE GATEWAY (ZERO PUBLIC CLOUD)</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="scada-comm-badge" id="scadaCommBadge">
+                <span class="pulse-dot"></span>
+                <span>MODBUS RTU: ONLINE (19200 8E1)</span>
+            </div>
+            <button class="btn-whatsapp-test" id="btnOpenPhone">
+                <span class="wa-icon">💬</span>
+                <span>Saha WhatsApp Alarmı</span>
+                <span class="badge-count" id="unreadAlertCount">0</span>
+            </button>
+            <div class="clock-display" id="clockDisplay">19:45:00</div>
+        </div>
+    </header>
+
+    <!-- Interactive Scenario Controller Bar (Demo for Judges) -->
+    <section class="scenario-toolbar">
+        <div class="scenario-label">
+            <span class="gear-icon">⚡</span>
+            <span>JÜRİ CANLI SENARYO TEST MERKEZİ:</span>
+        </div>
+        <div class="scenario-buttons">
+            <button class="btn-scenario active" data-scenario="NORMAL">
+                <span class="icon">🟢</span>
+                <span class="text">Senaryo 1: Normal İşletme</span>
+            </button>
+            <button class="btn-scenario" data-scenario="LOOSE_BOLT">
+                <span class="icon">🟡</span>
+                <span class="text">Senaryo 2: Klemens Gevşemesi (ΔT Residual)</span>
+            </button>
+            <button class="btn-scenario" data-scenario="CONDENSATION_PD">
+                <span class="icon">🟠</span>
+                <span class="text">Senaryo 3: Yoğuşma & Kısmi Deşarj (HFCT)</span>
+            </button>
+            <button class="btn-scenario" data-scenario="ARC_FLASH">
+                <span class="icon">🔴</span>
+                <span class="text">Senaryo 4: Ark Flaş (TVOC-2 &lt;1ms)</span>
+            </button>
+        </div>
+        <div class="scenario-meta">
+            <span class="meta-desc" id="scenarioDescription">Normal çalışma döngüsü. Tüm sensörler nominal sınırlarda.</span>
+        </div>
+    </section>
+
+    <!-- Hero KPI Overview Cards -->
+    <section class="kpi-grid">
+        <!-- Card 1: Asset Health Index -->
+        <div class="kpi-card card-health">
+            <div class="card-header">
+                <h3>PANO SAĞLIK İNDEKSİ (HEALTH INDEX)</h3>
+                <span class="badge-std">IEEE P3835</span>
+            </div>
+            <div class="health-content">
+                <div class="gauge-container">
+                    <svg class="gauge-svg" viewBox="0 0 120 120">
+                        <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="gauge-progress" id="gaugeProgress" cx="60" cy="60" r="50"></circle>
+                    </svg>
+                    <div class="gauge-text">
+                        <span class="gauge-value" id="healthIndexValue">98</span>
+                        <span class="gauge-unit">%</span>
+                    </div>
+                </div>
+                <div class="health-breakdown">
+                    <div class="status-chip" id="healthStatusChip">OPTIMAL</div>
+                    <div class="sub-bars">
+                        <div class="bar-row">
+                            <span>Termal Kontak (35%):</span>
+                            <div class="progress-bar"><div class="fill" id="barThermal" style="width: 98%;"></div></div>
+                            <strong id="valThermal">98%</strong>
+                        </div>
+                        <div class="bar-row">
+                            <span>İzolasyon / PD (25%):</span>
+                            <div class="progress-bar"><div class="fill" id="barInsulation" style="width: 96%;"></div></div>
+                            <strong id="valInsulation">96%</strong>
+                        </div>
+                        <div class="bar-row">
+                            <span>Çiğ Noktası / Nem (20%):</span>
+                            <div class="progress-bar"><div class="fill" id="barEnv" style="width: 95%;"></div></div>
+                            <strong id="valEnv">95%</strong>
+                        </div>
+                        <div class="bar-row">
+                            <span>Şebeke Kalitesi (20%):</span>
+                            <div class="progress-bar"><div class="fill" id="barElec" style="width: 99%;"></div></div>
+                            <strong id="valElec">99%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Physics Thermal Residual -->
+        <div class="kpi-card card-thermal">
+            <div class="card-header">
+                <h3>JOULE TERMAL MODELİ & RESIDUAL</h3>
+                <span class="badge-std">IEEE Trans. Pwr. Del.</span>
+            </div>
+            <div class="thermal-kpi-body">
+                <div class="main-metric">
+                    <div class="metric-block">
+                        <span class="label">Ölçülen Bara Sıcaklığı:</span>
+                        <span class="val highlight" id="measuredBusbarTemp">36.2 °C</span>
+                    </div>
+                    <div class="metric-block">
+                        <span class="label">Joule Model Beklenen:</span>
+                        <span class="val" id="predictedBusbarTemp">34.8 °C</span>
+                    </div>
+                </div>
+                <div class="residual-badge-container">
+                    <div class="residual-tag" id="residualTag">
+                        <span class="r-label">ΔT Residual:</span>
+                        <strong class="r-val" id="residualValue">+1.4 °C</strong>
+                        <span class="r-status" id="residualStatus">NOMİNAL DİRENÇ</span>
+                    </div>
+                </div>
+                <div class="thermal-sub-meta">
+                    <span>Ortam Sıcaklığı: <strong id="ambientTemp">27.5 °C</strong></span>
+                    <span>Primer Yük Akımı: <strong id="loadCurrent">324.5 A</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Dew Point & HFCT PD Fusion -->
+        <div class="kpi-card card-dew-pd">
+            <div class="card-header">
+                <h3>ÇİĞ NOKTASI (NEM) & HFCT PD</h3>
+                <span class="badge-std">Techimp 1-60 MHz</span>
+            </div>
+            <div class="dew-kpi-body">
+                <div class="dew-metrics">
+                    <div class="metric-cell">
+                        <span class="lbl">Bağıl Nem (RH):</span>
+                        <span class="num" id="rhValue">48.2 %</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="lbl">Çiğ Noktası (Tdp):</span>
+                        <span class="num" id="dewPointValue">15.6 °C</span>
+                    </div>
+                    <div class="metric-cell">
+                        <span class="lbl">Yoğuşma Marjı:</span>
+                        <span class="num highlight" id="dewMarginValue">20.6 °C</span>
+                    </div>
+                </div>
+                <div class="pd-activity-box">
+                    <div class="pd-header">
+                        <span>TECHIMP HFCT KISMİ DEŞARJ:</span>
+                        <span class="pd-state-chip" id="pdStateChip">TEMİZ</span>
+                    </div>
+                    <div class="pd-values">
+                        <span>Darbe Sıklığı: <strong id="pdPps">4.8 pps</strong></span>
+                        <span>Tepe Genlik: <strong id="pdPeak">32 pC</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: ABB TVOC-2 Arc Protection -->
+        <div class="kpi-card card-arc">
+            <div class="card-header">
+                <h3>ABB TVOC-2 ARK KORUMA SİSTEMİ</h3>
+                <span class="badge-std">SIL-2 / &lt;1 ms</span>
+            </div>
+            <div class="arc-kpi-body">
+                <div class="arc-status-row">
+                    <div class="arc-indicator" id="arcIndicator">
+                        <div class="status-light" id="arcStatusLight"></div>
+                        <div class="status-text">
+                            <strong id="arcSystemState">SYSTEM NORMAL</strong>
+                            <span>Optik Ark Dedektörleri Aktif (30 Kanal)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="arc-channel-grid">
+                    <div class="channel-group">
+                        <span class="grp-title">Bara Fiberleri (X1):</span>
+                        <span class="grp-val ok" id="x1Status">10/10 OK</span>
+                    </div>
+                    <div class="channel-group">
+                        <span class="grp-title">DSYA Hücreleri (X2):</span>
+                        <span class="grp-val ok" id="x2Status">10/10 OK</span>
+                    </div>
+                    <div class="channel-group">
+                        <span class="grp-title">Sayaç &amp; Diğer (X3):</span>
+                        <span class="grp-val ok" id="x3Status">10/10 OK</span>
+                    </div>
+                </div>
+                <div class="trip-counter-row">
+                    <span>Toplam Olay Kaydı (PDU 149): <strong id="tripCount">0</strong></span>
+                    <span>Açtırma Yanıt Süresi: <strong>&lt; 0.85 ms</strong></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Operational Workspace: Digital Twin & Live Telemetry -->
+    <main class="main-workspace">
+        <!-- Left: TEDAŞ 1600 kVA AG Pano Digital Twin -->
+        <section class="digital-twin-section">
+            <div class="panel-header">
+                <div class="title-with-badge">
+                    <h2>TEDAŞ 1600 kVA DAHİLİ AG PANO DİJİTAL İKİZİ</h2>
+                    <span class="drawing-ref">TEDAŞ-MLZ/2003-06.B EK-II/14 (1600x1500x450 mm)</span>
+                </div>
+                <div class="twin-legend">
+                    <span class="leg-item"><span class="color-box normal"></span> Normal (&lt;50°C)</span>
+                    <span class="leg-item"><span class="color-box warm"></span> Sıcak (50-70°C)</span>
+                    <span class="leg-item"><span class="color-box danger"></span> Aşırı Isınma (&gt;75°C)</span>
+                </div>
+            </div>
+
+            <!-- Interactive SVG Pano Model -->
+            <div class="pano-canvas-container" id="panoContainer">
+                <!-- SVG injected via digital_twin.js -->
+            </div>
+
+            <!-- Detail Popover Drawer for clicked DSYA / Component -->
+            <div class="component-drawer" id="componentDrawer">
+                <div class="drawer-header">
+                    <h4 id="drawerTitle">DSYA-04 Çıkış Kolu İnceleme</h4>
+                    <button class="btn-close-drawer" id="btnCloseDrawer">&times;</button>
+                </div>
+                <div class="drawer-body" id="drawerBody">
+                    <!-- Dynamic Component Details -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Right: Analytics, Modbus Inspector & Alarm Logs -->
+        <section class="analytics-section">
+            <!-- Tabs Header -->
+            <div class="analytics-tabs">
+                <button class="tab-btn active" data-tab="tabCharts">📈 Canlı Grafikler</button>
+                <button class="tab-btn" data-tab="tabModbus">📟 Modbus Register Tablosu</button>
+                <button class="tab-btn" data-tab="tabAlarms">🚨 Alarm &amp; SOE Olay Günlüğü</button>
+            </div>
+
+            <!-- Tab 1: Live Time Series Charts -->
+            <div class="tab-content active" id="tabCharts">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>İletken Sıcaklığı vs. Fiziksel Joule Modeli (Residual Takibi)</h4>
+                        <div class="chart-legend-row">
+                            <span class="leg blue">■ Yük Akımı (A)</span>
+                            <span class="leg red">■ Ölçülen Sıcaklık (°C)</span>
+                            <span class="leg dashed">--- Joule Model Beklenen (°C)</span>
+                        </div>
+                    </div>
+                    <canvas id="chartThermal" height="150"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <h4>Çiğ Noktası Marjı &amp; Techimp HFCT Kısmi Deşarj (PD) Nabzı</h4>
+                        <div class="chart-legend-row">
+                            <span class="leg green">■ Çiğ Marjı (°C)</span>
+                            <span class="leg amber">■ HFCT PD (pps)</span>
+                        </div>
+                    </div>
+                    <canvas id="chartDewPD" height="150"></canvas>
+                </div>
+            </div>
+
+            <!-- Tab 2: Live Modbus RTU Inspector -->
+            <div class="tab-content" id="tabModbus">
+                <div class="modbus-inspector">
+                    <div class="modbus-meta">
+                        <div class="search-box">
+                            <input type="text" id="modbusSearch" placeholder="Register ara (örn: 0, Akım, THD, Trip, TVOC)...">
+                        </div>
+                        <div class="devices-filter">
+                            <label><input type="radio" name="devFilter" value="ALL" checked> Tümü</label>
+                            <label><input type="radio" name="devFilter" value="MPR"> ENTES MPR-53CS</label>
+                            <label><input type="radio" name="devFilter" value="TVOC"> ABB TVOC-2</label>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table class="modbus-table" id="modbusTable">
+                            <thead>
+                                <tr>
+                                    <th>Cihaz</th>
+                                    <th>Dec</th>
+                                    <th>Hex</th>
+                                    <th>Register Tanımı</th>
+                                    <th>Ham Değer</th>
+                                    <th>Mühendislik Birimi</th>
+                                    <th>Tip</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modbusTableBody">
+                                <!-- Populated dynamically by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: SOE Event & Alarm Log -->
+            <div class="tab-content" id="tabAlarms">
+                <div class="alarm-feed" id="alarmFeed">
+                    <!-- Populated dynamically by app.js -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Virtual Smartphone WhatsApp Simulator Modal -->
+    <div class="smartphone-modal-overlay" id="phoneModal">
+        <div class="smartphone-frame">
+            <div class="phone-notch">
+                <div class="speaker"></div>
+                <div class="camera"></div>
+            </div>
+            <div class="phone-screen">
+                <!-- WhatsApp Chat Header -->
+                <div class="wa-chat-header">
+                    <button class="btn-wa-back" id="btnClosePhone">&larr;</button>
+                    <div class="wa-avatar">⚡</div>
+                    <div class="wa-contact-info">
+                        <strong>ADM / GDZ SCADA Acil Servis</strong>
+                        <span>Çevrimiçi | Kurumsal Erken Uyarı Botu</span>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Messages Container -->
+                <div class="wa-chat-messages" id="waMessagesContainer">
+                    <div class="wa-timestamp-divider">BUGÜN</div>
+                    <!-- Messages dynamically injected -->
+                </div>
+
+                <!-- Chat Footer Input Mock -->
+                <div class="wa-chat-footer">
+                    <span class="emoji-btn">😊</span>
+                    <input type="text" placeholder="Saha ekibi yanıtı..." readonly>
+                    <span class="send-btn">➤</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/digital_twin.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/whatsapp_modal.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
