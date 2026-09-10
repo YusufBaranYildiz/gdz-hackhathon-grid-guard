@@ -64,20 +64,19 @@ class ArcProtectionEngine:
 
             # Check if this incident is already latched
             if self.system_state == 2 and self.trip_log:
-                # Already tripped and latched. Maintain latched trip state without incrementing counter
                 trip_detail = self.trip_log[-1]
                 return {
                     "arc_detected": True,
                     "trip_executed": True,
+                    "latched": True,
                     "dual_criteria_satisfied": True,
                     "system_state": 2,
-                    "response_time_ms": trip_detail.get("clearing_time_ms", 0.85),
+                    "hardware_clearing_time_ms": trip_detail.get("clearing_time_ms", 0.85),
                     "trip_detail": trip_detail,
-                    "description": f"LATCHED: Arc Flash in {zone_desc} opened breaker. TVOC-2 in lockout state (Reset required)."
+                    "description": f"LATCHED: TVOC-2 optical arc trip in {zone_desc}. Breaker locked out (Manual Reset required)."
                 }
 
             # First occurrence of Genuine High-Energy Arc Flash -> Execute Trip & Latch
-            arc_trip_executed = True
             self.system_state = 2  # Tripped / Lockout
             self.number_of_trips += 1
             
@@ -88,9 +87,9 @@ class ArcProtectionEngine:
                 "zone": zone_desc,
                 "current_amps": round(instantaneous_current_amps, 1),
                 "di_dt": round(di_dt_amps_per_ms, 1),
-                "clearing_time_ms": 0.85,  # Sub-millisecond IGBT trip output
+                "clearing_time_ms": 0.85,  # TVOC-2 solid-state optical IGBT hardware clearing rating
                 "relays_tripped": ["K4_MAIN_BREAKER", "K5_SCADA_ALARM"],
-                "status": "CIRCUIT_BREAKER_OPENED"
+                "status": "CIRCUIT_BREAKER_LOCKED_OUT"
             }
             self.trip_log.append(trip_detail)
             self.active_dtcs = ["DTC-16-01-04 (Arc Flash Cleared)"]
@@ -98,11 +97,26 @@ class ArcProtectionEngine:
             return {
                 "arc_detected": True,
                 "trip_executed": True,
+                "latched": True,
                 "dual_criteria_satisfied": True,
                 "system_state": 2,
-                "response_time_ms": 0.85,
+                "hardware_clearing_time_ms": 0.85,
                 "trip_detail": trip_detail,
-                "description": f"CRITICAL ARC FLASH CLEARED in {trip_detail['clearing_time_ms']} ms at {zone_desc}! Breaker tripped via IGBT K4."
+                "description": f"CRITICAL: TVOC-2 optical arc trip executed (<1 ms hardware clearing rating) at {zone_desc}!"
+            }
+
+        elif self.system_state == 2:
+            # Latched in tripped state even if current/flash subsided, until explicit reset command
+            last_trip = self.trip_log[-1] if self.trip_log else {}
+            return {
+                "arc_detected": True,
+                "trip_executed": True,
+                "latched": True,
+                "dual_criteria_satisfied": True,
+                "system_state": 2,
+                "hardware_clearing_time_ms": 0.85,
+                "trip_detail": last_trip,
+                "description": "LATCHED / LOCKOUT: Pano şalteri açık ve kilitli. TVOC-2 resetlenene kadar sistem güvenli konumda tutuluyor."
             }
 
         elif optical_flash_detected and not current_condition_met:
@@ -110,6 +124,7 @@ class ArcProtectionEngine:
             return {
                 "arc_detected": False,
                 "trip_executed": False,
+                "latched": False,
                 "dual_criteria_satisfied": False,
                 "system_state": self.system_state,
                 "ambient_light_warning": True,
@@ -120,6 +135,7 @@ class ArcProtectionEngine:
             return {
                 "arc_detected": False,
                 "trip_executed": False,
+                "latched": False,
                 "dual_criteria_satisfied": False,
                 "system_state": self.system_state,
                 "description": "Optical arc monitors active. All 30 fiber channels healthy."
@@ -128,9 +144,11 @@ class ArcProtectionEngine:
     def reset_trip(self) -> None:
         """
         Modbus write to PDU 1000 (Reset trip).
+        Clears latch, resets registers and returns TVOC-2 to normal supervisory state.
         """
         self.system_state = 0
         self.active_dtcs.clear()
+        self.trip_log.clear()
 
     def get_modbus_register_snapshot(self) -> Dict[int, int]:
         """
@@ -143,9 +161,8 @@ class ArcProtectionEngine:
         regs[1300] = self.system_state
         # PDU 500: Installed modules (0x000E = Internal HMI + X2 + X3)
         regs[500] = 0x000E
-        # PDU 100: Trip 1 detector low
-        if self.trip_log:
-            last = self.trip_log[-1]
+        # PDU 100 & 102: Active detector and relay bitfields
+        if self.system_state == 2 and self.trip_log:
             regs[100] = 0x0008  # Bit 3 = X1:4
             regs[102] = 0x0007  # Relays K4, K5, K6
         else:

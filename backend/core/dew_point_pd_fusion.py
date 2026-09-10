@@ -30,9 +30,17 @@ class DewPointPDFusion:
     def calculate_dew_point(self, ambient_temp_c: float, relative_humidity_pct: float) -> float:
         """
         Calculates Dew Point Temperature (T_dp) using Magnus-Tetens formula.
+        Safely clamped to physical switchgear operating range (-45°C to 65°C) to prevent zero division.
         """
+        # Physical clamping
+        temp = max(-45.0, min(65.0, ambient_temp_c))
         rh = max(1.0, min(100.0, relative_humidity_pct))
-        alpha = ((self.a * ambient_temp_c) / (self.b + ambient_temp_c)) + math.log(rh / 100.0)
+        
+        denominator = self.b + temp
+        if abs(denominator) < 0.001:
+            denominator = 0.001
+
+        alpha = ((self.a * temp) / denominator) + math.log(rh / 100.0)
         t_dp = (self.b * alpha) / (self.a - alpha)
         return t_dp
 

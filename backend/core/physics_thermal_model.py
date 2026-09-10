@@ -72,19 +72,19 @@ class PhysicsThermalModel:
         else:
             cdi = 1.0
 
-        # Determine severity
-        if residual >= self.critical_threshold:
+        # Determine severity using both residual Delta-T and Contact Degradation Index (CDI)
+        if residual >= self.critical_threshold or cdi >= 2.5:
             status = "CRITICAL"
             anomaly_detected = True
-            description = f"Critical contact overheating! Residual Delta-T is +{residual:.1f}°C above Joule thermal model."
-        elif residual >= self.warning_threshold:
+            description = f"Critical contact degradation! Residual Delta-T is +{residual:.1f}°C (CDI: {cdi:.2f}x nominal resistance)."
+        elif residual >= self.warning_threshold or cdi >= 1.6:
             status = "WARNING"
             anomaly_detected = True
-            description = f"Early contact degradation detected. Residual Delta-T is +{residual:.1f}°C (Bolt loosening/oxidation)."
+            description = f"Early contact degradation detected. Residual Delta-T is +{residual:.1f}°C (CDI: {cdi:.2f}x nominal resistance)."
         elif residual <= -15.0:
             status = "SENSOR_FAULT"
             anomaly_detected = True
-            description = "Sensor reading significantly below physical model. Possible probe detachment."
+            description = f"Sensor fault detected! Reading ({measured_temp_c:.1f}°C) is {abs(residual):.1f}°C below physical minimum."
         else:
             status = "NORMAL"
             anomaly_detected = False

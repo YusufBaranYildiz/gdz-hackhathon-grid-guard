@@ -52,7 +52,7 @@ async def simulation_loop():
             # 1. Step simulator
             raw = simulator.step()
 
-            # 2. Physics Thermal Model Evaluation
+            # 2. Physics Thermal Model Evaluation - Scan all 12 DSYA Feeders + Main Busbar
             thermal_eval = thermal_engine.evaluate_contact(
                 measured_temp_c=raw["thermal"]["main_busbar_temp_c"],
                 current_amps=raw["electrical"]["current_l1"],
@@ -61,15 +61,29 @@ async def simulation_loop():
                 channel_id="main_busbar_2x100x10"
             )
 
-            # Evaluate DSYA-04 specifically for contact anomalies
-            dsya4 = raw["thermal"]["dsya_feeders"][3]
-            dsya4_eval = thermal_engine.evaluate_contact(
-                measured_temp_c=dsya4["surface_temp_c"],
-                current_amps=dsya4["current_amps"],
-                ambient_temp_c=raw["thermal"]["ambient_temp_c"],
-                dt_seconds=1.0,
-                channel_id="DSYA-04"
-            )
+            # Evaluate all 12 feeders individually
+            worst_feeder_eval = thermal_eval
+            feeder_evaluations = []
+            for idx, feeder in enumerate(raw["thermal"]["dsya_feeders"]):
+                f_eval = thermal_engine.evaluate_contact(
+                    measured_temp_c=feeder["surface_temp_c"],
+                    current_amps=feeder["current_amps"],
+                    ambient_temp_c=raw["thermal"]["ambient_temp_c"],
+                    dt_seconds=1.0,
+                    channel_id=feeder["id"]
+                )
+                feeder_evaluations.append(f_eval)
+                if f_eval["residual_delta_t"] > worst_feeder_eval["residual_delta_t"]:
+                    worst_feeder_eval = f_eval
+
+            dsya4_eval = feeder_evaluations[3] if len(feeder_evaluations) > 3 else thermal_eval
+
+            # Calculate True 3-Phase Current Unbalance Ratio (%)
+            i1 = raw["electrical"]["current_l1"]
+            i2 = raw["electrical"]["current_l2"]
+            i3 = raw["electrical"]["current_l3"]
+            i_avg = max(1.0, (i1 + i2 + i3) / 3.0)
+            phase_unbalance = round(((max(i1, i2, i3) - min(i1, i2, i3)) / i_avg) * 100.0, 1)
 
             # 3. Dew Point & HFCT PD Fusion
             dew_pd_eval = dew_pd_engine.evaluate(
@@ -91,10 +105,11 @@ async def simulation_loop():
 
             # 5. Multi-Modal Unified Health Index
             health = health_engine.compute(
-                thermal_eval=dsya4_eval if dsya4_eval["anomaly_detected"] else thermal_eval,
+                thermal_eval=worst_feeder_eval if worst_feeder_eval["anomaly_detected"] else thermal_eval,
                 dew_pd_eval=dew_pd_eval,
                 arc_eval=arc_eval,
-                thd_current_pct=raw["electrical"]["thd_current"]
+                thd_current_pct=raw["electrical"]["thd_current"],
+                phase_unbalance_pct=phase_unbalance
             )
 
             # Sync actual TVOC-2 registers from ArcProtectionEngine
@@ -236,8 +251,16 @@ def get_telemetry_history():
 
 @app.post("/api/scenario/{scenario_name}")
 def switch_scenario(scenario_name: str):
-    res = simulator.set_scenario(scenario_name.upper())
-    if scenario_name.upper() == "NORMAL":
+    valid_scenarios = ["NORMAL", "LOOSE_BOLT", "CONDENSATION_PD", "ARC_FLASH"]
+    upper_name = scenario_name.upper()
+    if upper_name not in valid_scenarios:
+        return JSONResponse(
+            status_code=400,
+            content={"status": "ERROR", "message": f"Invalid scenario '{scenario_name}'. Valid options: {valid_scenarios}"}
+        )
+
+    res = simulator.set_scenario(upper_name)
+    if upper_name == "NORMAL":
         arc_engine.reset_trip()
         notification_service.reset_state()
     return {"status": "SUCCESS", "active_scenario": res}

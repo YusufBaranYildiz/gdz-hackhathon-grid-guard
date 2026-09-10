@@ -36,9 +36,13 @@ class SwitchgearHealthIndex:
         Calculates unified health score and categorical operational status.
         """
         # 1. Thermal score (0 to 100)
-        residual = max(0.0, thermal_eval.get("residual_delta_t", 0.0))
-        # Normal residual < 5C -> 100 score; 25C residual -> 0 score
-        s_thermal = max(0.0, min(100.0, 100.0 - (residual * 4.0)))
+        thermal_status = thermal_eval.get("status", "NORMAL")
+        if thermal_status == "SENSOR_FAULT":
+            s_thermal = 20.0  # Heavy penalty for detached/faulty sensor
+        else:
+            residual = max(0.0, thermal_eval.get("residual_delta_t", 0.0))
+            # Normal residual < 5C -> 100 score; 25C residual -> 0 score
+            s_thermal = max(0.0, min(100.0, 100.0 - (residual * 4.0)))
 
         # 2. Insulation / PD score (0 to 100)
         pd_pps = dew_pd_eval.get("hfct_pd_pps", 5.0)

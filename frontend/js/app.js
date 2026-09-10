@@ -175,18 +175,19 @@ class DashboardApp {
                 elGauge.style.stroke = hi.color_code;
             }
 
-            // Sub-bars
+            // Sub-bars with Nullish Coalescing (??) so 0% does NOT fallback to 95%!
             const subs = hi.sub_scores || {};
             const updateBar = (barId, valId, val) => {
                 const bar = document.getElementById(barId);
                 const text = document.getElementById(valId);
-                if (bar) bar.style.width = `${val}%`;
-                if (text) text.textContent = `${Math.round(val)}%`;
+                const safeVal = val !== undefined && val !== null ? val : 100;
+                if (bar) bar.style.width = `${safeVal}%`;
+                if (text) text.textContent = `${Math.round(safeVal)}%`;
             };
-            updateBar("barThermal", "valThermal", subs.thermal_contact || 95);
-            updateBar("barInsulation", "valInsulation", subs.insulation_pd || 95);
-            updateBar("barEnv", "valEnv", subs.environmental_dew || 95);
-            updateBar("barElec", "valElec", subs.electrical_quality || 95);
+            updateBar("barThermal", "valThermal", subs.thermal_contact);
+            updateBar("barInsulation", "valInsulation", subs.insulation_pd);
+            updateBar("barEnv", "valEnv", subs.environmental_dew);
+            updateBar("barElec", "valElec", subs.electrical_quality);
         }
 
         // 3. Update KPI 2: Thermal Residual
@@ -253,24 +254,22 @@ class DashboardApp {
             }
         }
 
-        // 5. Update KPI 4: Arc Protection TVOC-2
+        // 5. Update KPI 4: Arc Protection TVOC-2 (Check trip_executed OR latched system_state == 2)
         const arc = data.optical_arc;
         if (arc) {
             const elArcLight = document.getElementById("arcStatusLight");
             const elArcState = document.getElementById("arcSystemState");
             const elTripCount = document.getElementById("tripCount");
 
+            const isTrippedOrLatched = arc.trip_executed || arc.system_state === 2 || arc.latched;
+
             if (elArcLight) {
-                if (arc.trip_executed) {
-                    elArcLight.className = "status-light tripped";
-                } else {
-                    elArcLight.className = "status-light";
-                }
+                elArcLight.className = isTrippedOrLatched ? "status-light tripped" : "status-light";
             }
 
             if (elArcState) {
-                elArcState.textContent = arc.trip_executed ? "TRIPPED (ARK AÇTIRMA)" : "SYSTEM NORMAL";
-                elArcState.style.color = arc.trip_executed ? "#ef4444" : "#ffffff";
+                elArcState.textContent = isTrippedOrLatched ? "TRIPPED (ARK AÇTIRMA - KİLİTLİ)" : "SYSTEM NORMAL";
+                elArcState.style.color = isTrippedOrLatched ? "#ef4444" : "#ffffff";
             }
 
             if (elTripCount && data.tvoc2_registers) {
