@@ -10,6 +10,9 @@
 [![ENTES MPR-53CS](https://img.shields.io/badge/Power%20Analyzer-ENTES%20MPR--53CS-purple.svg)](#modbus-rtutcp-register-bellek-haritas%C4%B1)
 [![Tests Passing](https://img.shields.io/badge/Tests-22%2F22%20Passing%20(100%25)-brightgreen.svg)](#-test-ve-do%C4%9Frulama)
 
+> 🌐 **Canlı Demo (Netlify Live):** [https://grand-palmier-39b474.netlify.app](https://grand-palmier-39b474.netlify.app)  
+> 💻 **GitHub Repository:** [https://github.com/YusufBaranYildiz/gdz-hackhathon-grid-guard](https://github.com/YusufBaranYildiz/gdz-hackhathon-grid-guard)
+
 ---
 
 ## 📑 İçindekiler
@@ -362,12 +365,15 @@ Tarayıcınızdan şu adresi açınız:
 
 ## 🌐 Netlify Canlı Önizleme (Bağımsız İstemci Motoru)
 
-Proje, Python sunucusuna erişim olmayan ortamlarda (veya jüri değerlendirmesinde statik barındırma platformlarında) çalışabilmesi için **[frontend/js/client_engine.js](frontend/js/client_engine.js)** adında tam donanımlı bir **İstemci Tarafı Bağımsız Simülatör** içerir.       
+👉 **Canlı Demo Adresi:** [https://grand-palmier-39b474.netlify.app](https://grand-palmier-39b474.netlify.app)
 
-* Projenin demosuna " grand-palmier-39b474.netlify.app " linkinden ulaşabilirsiniz.
-* Netlify veya GitHub Pages üzerinde açıldığında, backend bağlantısının olmadığını otomatik algılar.
-* Backend'deki fizik motorlarının, Modbus registerlarının ve 100 panoluk filonun birebir kopyasını tarayıcı JavaScript motoru üzerinde saniyede 1 kez çalıştırır.
-* Tüm butonlar, senaryolar, grafik dalgaları ve WhatsApp bildirim modalı Netlify üzerinde %100 canlı ve hareketli çalışır.
+Proje, Python sunucusuna erişim olmayan ortamlarda (veya jüri değerlendirmesinde statik barındırma platformlarında) çalışabilmesi için **[frontend/js/client_engine.js](frontend/js/client_engine.js)** adında tam donanımlı bir **İstemci Tarafı Bağımsız Simülatör** içerir:
+
+* **Canlı Demo Linki:** Projenin canlı çalışan SCADA arayüzüne **[https://grand-palmier-39b474.netlify.app](https://grand-palmier-39b474.netlify.app)** linkinden anında erişebilirsiniz.
+* **Otomatik Ortam Tespiti:** Netlify veya GitHub Pages üzerinde açıldığında, backend bağlantısının olmadığını otomatik algılar ve yerel istemci motorunu başlatır.
+* **Tam Fizik & SCADA Deneyimi:** Backend'deki fizik motorlarının, Modbus registerlarının ve 100 panoluk filonun birebir kopyasını tarayıcı JavaScript motoru üzerinde saniyede 1 kez çalıştırır.
+* **Canlı Grafik ve Bildirimler:** Tüm butonlar, senaryolar, grafik dalgaları ve WhatsApp bildirim modalı Netlify üzerinde %100 canlı ve hareketli çalışır.
+* **GitHub Continuous Deployment:** Netlify projesi bu GitHub reposuna bağlandığında her `git push` işlemi sonrasında otomatik olarak deploy edilir.
 
 ---
 
