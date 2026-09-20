@@ -668,6 +668,36 @@ body.dark-theme {
     box-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
 }
 
+.btn-github-nav {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+}
+
+.btn-github-nav .gh-icon {
+    color: #f1f5f9;
+}
+
+.btn-github-nav:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12);
+}
+
 .clock-display {
     font-family: var(--font-mono);
     font-size: 13px;
@@ -2954,6 +2984,22 @@ body.theme-light .btn-whatsapp-test:hover {
     color: #0284c7;
 }
 
+body.theme-light .btn-github-nav {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.15);
+    color: #0f172a;
+}
+
+body.theme-light .btn-github-nav .gh-icon {
+    color: #0f172a;
+}
+
+body.theme-light .btn-github-nav:hover {
+    background: rgba(15, 23, 42, 0.06);
+    border-color: rgba(15, 23, 42, 0.3);
+    color: #0f172a;
+}
+
 body.theme-light .btn-theme-trigger {
     background: #ffffff;
     border-color: rgba(15, 23, 42, 0.15);
@@ -3899,6 +3945,26 @@ body.theme-sanzo-wada .btn-whatsapp-test:hover {
 }
 
 body.theme-sanzo-wada .btn-whatsapp-test:hover span {
+    color: #4eba7e;
+}
+
+body.theme-sanzo-wada .btn-github-nav {
+    background: rgba(24, 35, 27, 0.85);
+    border-color: rgba(247, 244, 235, 0.15);
+    color: #f7f4eb;
+}
+
+body.theme-sanzo-wada .btn-github-nav .gh-icon {
+    color: #f7f4eb;
+}
+
+body.theme-sanzo-wada .btn-github-nav:hover {
+    background: rgba(78, 186, 126, 0.16);
+    border-color: rgba(78, 186, 126, 0.45);
+    color: #4eba7e;
+}
+
+body.theme-sanzo-wada .btn-github-nav:hover span {
     color: #4eba7e;
 }
 
