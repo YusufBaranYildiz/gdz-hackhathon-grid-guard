@@ -21,11 +21,11 @@ python -m pip install -r requirements.txt --quiet
 :: Start Gateway server
 echo [2/2] Grid-Guard AI SCADA Gateway baslatiliyor...
 echo.
-echo  - SCADA Web Dashboard : http://localhost:8000
+echo  - SCADA Web Dashboard : http://localhost:8000 (veya Yerel Ag IP:8000)
 echo  - Modbus RTU / TCP    : Active (19200 8E1)
 echo  - Zero-Cloud Modu     : AKTIF (Internet Baglantisi Gerekmez)
 echo.
 echo Cikis icin CTRL+C tusuna basiniz.
 echo ========================================================
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 pause

@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -)"
+      "Bash(python -)",
+      "PowerShell(python -m unittest discover -s tests -v)",
+      "PowerShell(node --check frontend/js/app.js)",
+      "PowerShell(node --check frontend/js/whatsapp_modal.js)",
+      "PowerShell(node --check frontend/js/charts.js)",
+      "PowerShell(node --check frontend/js/digital_twin.js)",
+      "Bash(python tests/benchmark_100_panels.py)",
+      "PowerShell(python -m pytest -q)"
     ]
   }
 }

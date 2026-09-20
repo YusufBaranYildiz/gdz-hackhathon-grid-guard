@@ -29,9 +29,9 @@ class TestCoreEngines(unittest.TestCase):
 
     def test_thermal_model_normal(self):
         """Under nominal current and ambient, residual Delta-T should be close to 0."""
-        # 300A at 25C ambient, measured 38C
+        # 300A at 25C ambient on a 2309A double busbar produces ~0.3K rise
         res = self.thermal_model.evaluate_contact(
-            measured_temp_c=36.0,
+            measured_temp_c=26.0,
             current_amps=300.0,
             ambient_temp_c=25.0,
             dt_seconds=1200.0,
@@ -39,7 +39,7 @@ class TestCoreEngines(unittest.TestCase):
         )
         self.assertFalse(res["anomaly_detected"])
         self.assertEqual(res["status"], "NORMAL")
-        self.assertLess(abs(res["residual_delta_t"]), 10.0)
+        self.assertLess(abs(res["residual_delta_t"]), 5.0)
 
     def test_thermal_model_loose_bolt(self):
         """When measured temp spikes without current change, residual must trigger CRITICAL/WARNING."""

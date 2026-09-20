@@ -16,6 +16,7 @@ class ArcProtectionEngine:
         
         # Internal states matching TVOC-2 Modbus registers
         self.system_state: int = 0  # 0: Normal, 1: Error, 2: Tripped
+        self.latched: bool = False
         self.number_of_trips: int = 0
         self.trip_log: List[Dict[str, Any]] = []
         self.active_dtcs: List[str] = []
@@ -78,6 +79,7 @@ class ArcProtectionEngine:
 
             # First occurrence of Genuine High-Energy Arc Flash -> Execute Trip & Latch
             self.system_state = 2  # Tripped / Lockout
+            self.latched = True
             self.number_of_trips += 1
             
             trip_detail = {
@@ -147,12 +149,14 @@ class ArcProtectionEngine:
         Clears latch, resets registers and returns TVOC-2 to normal supervisory state.
         """
         self.system_state = 0
+        self.latched = False
         self.active_dtcs.clear()
         self.trip_log.clear()
 
     def get_modbus_register_snapshot(self) -> Dict[int, int]:
         """
         Returns raw TVOC-2 Modbus register values for SCADA polling.
+        Conforms strictly to ABB TVOC-2 Modbus Manual (1SFC170017M0201) Tables 4.4.1.1 & 4.4.1.2.
         """
         regs = {}
         # PDU 149: Number of trips
@@ -161,11 +165,29 @@ class ArcProtectionEngine:
         regs[1300] = self.system_state
         # PDU 500: Installed modules (0x000E = Internal HMI + X2 + X3)
         regs[500] = 0x000E
-        # PDU 100 & 102: Active detector and relay bitfields
+        # PDU 1000: Reset register (0: idle)
+        regs[1000] = 0
+        
+        # PDU 100 & 101 & 102: Active detector and relay bitfields
         if self.system_state == 2 and self.trip_log:
-            regs[100] = 0x0008  # Bit 3 = X1:4
+            last_trip = self.trip_log[-1]
+            sensor = last_trip.get("sensor_id", "X2:2")
+
+            # Table 4.4.1.1: Trip 1 detector, low (PDU 100) -> Bit 0-9: X1:1-X1:10, Bit 10-14: X2:1-X2:5
+            pdu100_map = {f"X1:{i}": i - 1 for i in range(1, 11)}
+            for i in range(1, 6):
+                pdu100_map[f"X2:{i}"] = 9 + i
+
+            # Table 4.4.1.2: Trip 1 detector, high (PDU 101) -> Bit 0-4: X2:6-X2:10, Bit 5-14: X3:1-X3:10
+            pdu101_map = {f"X2:{i}": i - 6 for i in range(6, 11)}
+            for i in range(1, 11):
+                pdu101_map[f"X3:{i}"] = 4 + i
+
+            regs[100] = (1 << pdu100_map[sensor]) if sensor in pdu100_map else 0x0800
+            regs[101] = (1 << pdu101_map[sensor]) if sensor in pdu101_map else 0x0000
             regs[102] = 0x0007  # Relays K4, K5, K6
         else:
             regs[100] = 0
+            regs[101] = 0
             regs[102] = 0
         return regs

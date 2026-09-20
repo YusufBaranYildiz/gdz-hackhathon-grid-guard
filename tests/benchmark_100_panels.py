@@ -1,7 +1,7 @@
 """
-High-Concurrence Benchmark: Validating Edge Gateway Execution Across 100 TEDAŞ AG Distribution Panels.
-Demonstrates deterministic <10ms computation time for 100 switchgears concurrently, proving
-that the physics thermal model, Magnus dew point fusion, and Health Index are edge-ready.
+CPU Benchmark: Measuring the synthetic analysis core across 100 virtual distribution panels.
+This benchmark covers in-process calculations only; it does not represent physical sensors,
+Modbus/network traffic, WebSocket clients, persistence, or breaker response time.
 """
 
 import time
@@ -86,7 +86,7 @@ def run_100_panel_benchmark():
     print(f"Average Cycle (100 Panos): {avg_cycle_ms:.2f} ms (Cycle requirement: <= 1000 ms)")
     print(f"Processing Time / Panel : {avg_panel_ms:.4f} ms")
     print(f"Maximum Edge Capacity   : ~{int(1000.0 / avg_panel_ms)} switchgears / second on single core")
-    print(f"PASS: 100 Panel Real-Time Concurrency SLA is 100% SATISFIED!")
+    print(f"INFO: Synthetic CPU calculation benchmark completed; this is not an end-to-end field SLA.")
     print(f"============================================================")
 
 if __name__ == '__main__':

@@ -40,14 +40,28 @@ class ModbusPanoSimulator:
         self.mpr53cs_registers: Dict[int, int] = {}
         self.tvoc2_registers: Dict[int, int] = {}
 
+        # Physical Thermal Inertia states (Copper 2x100x10mm busbar mass & feeders low-pass filter)
+        self.smooth_main_busbar_temp: float = 36.2
+        self.smooth_feeder_temps: Dict[int, float] = {}
+
     def _load_excel_currents(self):
         """
         Loads L1 synthetic current data from 'İstenen Veriler.xlsx'.
         Row formula: Primary Amps = Sekonder_mA * (600000/100) / 1000 = mA * 6
         """
+        import unicodedata
         try:
-            if os.path.exists(self.excel_path):
-                wb = openpyxl.load_workbook(self.excel_path, data_only=True)
+            excel_target = self.excel_path
+            if not os.path.exists(excel_target):
+                parent = os.path.dirname(excel_target)
+                if os.path.isdir(parent):
+                    for f in os.listdir(parent):
+                        if f.endswith(".xlsx") and "stenen" in unicodedata.normalize("NFC", f):
+                            excel_target = os.path.join(parent, f)
+                            break
+
+            if os.path.exists(excel_target):
+                wb = openpyxl.load_workbook(excel_target, data_only=True)
                 ws = wb["Akım Sensörü"]
                 for r in range(7, ws.max_row + 1):
                     val = ws.cell(r, 2).value
@@ -65,89 +79,137 @@ class ModbusPanoSimulator:
         valid_scenarios = ["NORMAL", "LOOSE_BOLT", "CONDENSATION_PD", "ARC_FLASH"]
         if scenario_name in valid_scenarios:
             self.active_scenario = scenario_name
+            if scenario_name == "NORMAL":
+                # Immediately reset ABB TVOC-2 Modbus registers to clean supervisory state
+                self.tvoc2_registers[149] = 0
+                self.tvoc2_registers[1300] = 0
+                self.tvoc2_registers[100] = 0
+                self.tvoc2_registers[101] = 0
+                self.tvoc2_registers[102] = 0
+                self.tvoc2_registers[1000] = 1
+                # Reset thermal smoothing baseline to avoid stale transient lag
+                self.smooth_main_busbar_temp = self.ambient_temp_c + 0.35
+                self.smooth_feeder_temps.clear()
         return self.active_scenario
 
     def step(self) -> Dict[str, Any]:
         """
         Advances the simulation by 1 time step, updates physics and Modbus registers.
+        Strictly satisfies Kirchhoff's Current Law: Sum(I_feeders) == I_incomer (L1).
         """
-        # 1. Fetch baseline L1 current from Excel cyclical stream
+        # 1. Fetch baseline L1 current from Excel cyclical stream (~320A - 380A in Aegean normal operation)
         base_l1_current = self.synthetic_currents[self.current_step_idx % len(self.synthetic_currents)]
         self.current_step_idx += 1
 
         # Synthesize 3-Phase currents with minor realistic unbalance & noise
-        jitter = random.uniform(-2.5, 2.5)
-        i_l1 = max(10.0, base_l1_current + jitter)
-        i_l2 = max(10.0, i_l1 * random.uniform(0.95, 0.99))
-        i_l3 = max(10.0, i_l1 * random.uniform(1.01, 1.04))
+        jitter = random.uniform(-2.0, 2.0)
+        i_l1 = max(50.0, base_l1_current + jitter)
+        i_l2 = max(50.0, i_l1 * random.uniform(0.97, 0.99))
+        i_l3 = max(50.0, i_l1 * random.uniform(1.01, 1.03))
         i_neutral = round(abs((i_l1 + i_l2 + i_l3) / 3.0 - i_l2) * 0.4, 1)
 
         # 2. Environmental dynamics
-        ambient_temp = self.ambient_temp_c + random.uniform(-0.3, 0.3)
-        relative_humidity = self.relative_humidity_pct + random.uniform(-0.5, 0.5)
+        ambient_temp = self.ambient_temp_c + random.uniform(-0.1, 0.1)
+        relative_humidity = self.relative_humidity_pct + random.uniform(-0.3, 0.3)
 
         # Techimp HFCT partial discharge baseline (low pps in normal operation)
-        hfct_pps = random.uniform(3.0, 7.0)
-        hfct_peak_pc = random.uniform(25.0, 40.0)
+        hfct_pps = random.uniform(3.0, 6.0)
+        hfct_peak_pc = random.uniform(25.0, 35.0)
 
         # Optical Arc flag
         optical_flash = False
         triggered_sensor = None
         di_dt = 15.0
 
-        # Normal busbar surface temperature baseline (Joule heat)
-        # 2x(100x10mm) busbar at ~400A warms approx 15-22°C above ambient
-        busbar_normal_rise = ((i_l1 / 500.0) ** 2) * 22.0
-        main_busbar_temp = ambient_temp + busbar_normal_rise + random.uniform(-0.5, 0.5)
-
-        # Distribute currents to active DSYA feeders
-        active_feeders = [f for f in self.feeders if f["is_active"]]
-        load_per_feeder = i_l1 / len(active_feeders)
-        for f in self.feeders:
-            if f["is_active"]:
-                f["current_amps"] = round(load_per_feeder * random.uniform(0.85, 1.15), 1)
-                feeder_rise = ((f["current_amps"] / 250.0) ** 2) * 25.0
-                f["surface_temp_c"] = round(ambient_temp + feeder_rise + random.uniform(-0.4, 0.4), 1)
-                f["contact_status"] = "OK"
-            else:
-                f["current_amps"] = 0.0
-                f["surface_temp_c"] = round(ambient_temp + random.uniform(0.0, 1.5), 1)
-                f["contact_status"] = "SPARE"
+        # Normal busbar surface temperature baseline (Normalized TS EN 61439-1 Joule Heating):
+        # 1600 kVA (2309.4 A) copper double busbar has Delta_T = 14.0 K at full continuous load.
+        target_busbar_rise = 14.0 * ((i_l1 / 2309.4) ** 2)
+        target_busbar_temp = ambient_temp + target_busbar_rise
+        self.smooth_main_busbar_temp += 0.1 * (target_busbar_temp - self.smooth_main_busbar_temp)
+        main_busbar_temp = round(self.smooth_main_busbar_temp + random.uniform(-0.02, 0.02), 1)
 
         # 3. Apply Scenario Mutations
         anomaly_flag = False
-        scenario_description = "Normal operating cycle. All parameters healthy."
+        scenario_description = "Normal çalışma döngüsü. Tüm sensörler nominal sınırlarda."
 
         if self.active_scenario == "LOOSE_BOLT":
-            # DSYA-04 loose terminal bolt: Contact resistance spikes, creating severe local Delta-T
-            target_feeder = self.feeders[3]  # DSYA-04
-            target_feeder["surface_temp_c"] = round(ambient_temp + 58.5 + random.uniform(-1.0, 1.0), 1)  # ~86°C!
-            target_feeder["contact_status"] = "OVERHEATING"
-            main_busbar_temp += 12.0
+            # DSYA-04 loose terminal bolt: Contact resistance spikes, creating realistic Delta-T (+18°C to +22°C)
             anomaly_flag = True
-            scenario_description = "ANOMALY: High contact resistance at DSYA-04 terminal! Thermal runaway detected."
+            scenario_description = "ANOMALİ: DSYA-04 klemensinde yüksek kontak direnci! Termal aşırı ısınma tespit edildi."
 
         elif self.active_scenario == "CONDENSATION_PD":
             # Nighttime condensation wave: Relative humidity surges to 93%, dew point collapses margin
             relative_humidity = 93.5 + random.uniform(-0.5, 0.5)
             ambient_temp = 17.5
             main_busbar_temp = 18.2  # Cold busbar near ambient
-            # HFCT Partial discharge pulses avalanche due to microscopic moisture film on insulators
             hfct_pps = random.uniform(78.0, 115.0)
             hfct_peak_pc = random.uniform(260.0, 380.0)
             anomaly_flag = True
-            scenario_description = "ANOMALY: High condensation and severe HFCT Partial Discharge (PD) avalanche!"
+            scenario_description = "ANOMALİ: Yüksek bağıl nem/yoğuşma riski ve şiddetli HFCT kısmi deşarj (PD) tespiti!"
 
         elif self.active_scenario == "ARC_FLASH":
-            # Catastrophic optical arc in DSYA-04 compartment
             optical_flash = True
             triggered_sensor = "X2:2"  # DSYA-04 compartment
             i_l1 = 3450.0  # Massive arc fault current
             di_dt = 1850.0  # di/dt spike
             anomaly_flag = True
-            scenario_description = "CRITICAL: Internal Arc Flash ignition detected! Sub-millisecond clearing initiated."
+            scenario_description = "KRİTİK: Hücre içi optik ark flaş patlaması! Milisaniye altı açtırma tetiklendi."
 
-        # 4. Update ENTES MPR-53CS Modbus RTU Registers (Function 03)
+        # 4. Kirchhoff's Current Law Distribution: Sum(I_feeders) == I_incomer (i_l1)
+        if self.active_scenario == "ARC_FLASH":
+            # Direct short-circuit arc path on Feeder 3 (DSYA-04); other branches carry 0 A
+            for idx, f in enumerate(self.feeders):
+                if idx == 3:
+                    f["current_amps"] = round(i_l1, 1)
+                    f["contact_status"] = "ARC_FAULT"
+                    f["surface_temp_c"] = 82.5
+                else:
+                    f["current_amps"] = 0.0
+                    f["contact_status"] = "OK" if f["is_active"] else "SPARE"
+                    f["surface_temp_c"] = round(ambient_temp + 0.3, 1)
+        else:
+            active_feeders = [f for f in self.feeders if f["is_active"]]
+            active_weights = [0.105, 0.098, 0.102, 0.095, 0.108, 0.097, 0.101, 0.096, 0.103, 0.095]
+            w_sum = sum(active_weights)
+            norm_weights = [w / w_sum for w in active_weights]
+            
+            allocated_amps = 0.0
+            for i, f in enumerate(active_feeders):
+                idx = int(f["id"].split("-")[-1]) - 1
+                if i == len(active_feeders) - 1:
+                    f_amps = round(i_l1 - allocated_amps, 1)
+                else:
+                    f_amps = round(i_l1 * norm_weights[i], 1)
+                    allocated_amps += f_amps
+                f["current_amps"] = f_amps
+
+                # Physical feeder contact temperature calculation
+                expected_feeder_rise = 18.0 * ((f["current_amps"] / 250.0) ** 2)
+                target_feeder_temp = ambient_temp + expected_feeder_rise
+
+                if self.active_scenario == "LOOSE_BOLT" and idx == 3:
+                    # DSYA-04 has 150 µΩ loose connection producing +20°C Delta-T (Warning band: 15-30°C)
+                    fault_target_temp = target_feeder_temp + 20.2
+                    prev_temp = self.smooth_feeder_temps.get(idx, fault_target_temp)
+                    curr_temp = prev_temp + 0.2 * (fault_target_temp - prev_temp)
+                    self.smooth_feeder_temps[idx] = curr_temp
+                    f["surface_temp_c"] = round(curr_temp + random.uniform(-0.03, 0.03), 1)
+                    f["contact_status"] = "OVERHEATING"
+                else:
+                    prev_temp = self.smooth_feeder_temps.get(idx, target_feeder_temp)
+                    curr_temp = prev_temp + 0.1 * (target_feeder_temp - prev_temp)
+                    self.smooth_feeder_temps[idx] = curr_temp
+                    f["surface_temp_c"] = round(curr_temp + random.uniform(-0.02, 0.02), 1)
+                    f["contact_status"] = "OK"
+
+            # Inactive spare feeders
+            for f in self.feeders:
+                if not f["is_active"]:
+                    f["current_amps"] = 0.0
+                    f["surface_temp_c"] = round(ambient_temp + 0.3, 1)
+                    f["contact_status"] = "SPARE"
+
+        # 5. Update ENTES MPR-53CS Modbus RTU Registers (Function 03)
         # Voltages
         v_l1 = 230.2 + random.uniform(-0.8, 0.8)
         v_l2 = 229.7 + random.uniform(-0.8, 0.8)
@@ -172,11 +234,14 @@ class ModbusPanoSimulator:
         self.mpr53cs_registers[32768] = 1              # VT Ratio
         self.mpr53cs_registers[32769] = 500            # CT Ratio (2500/5 = 500)
 
-        # 5. Update ABB TVOC-2 Registers
+        # 6. Update ABB TVOC-2 Registers
         self.tvoc2_registers[149] = 1 if self.active_scenario == "ARC_FLASH" else 0  # Number of trips
         self.tvoc2_registers[1300] = 2 if self.active_scenario == "ARC_FLASH" else 0  # 2: Tripped, 0: Normal
-        self.tvoc2_registers[100] = 0x0004 if self.active_scenario == "ARC_FLASH" else 0x0000  # X2:2 bit
+        self.tvoc2_registers[100] = 0x0800 if self.active_scenario == "ARC_FLASH" else 0x0000  # Bit 11 = X2:2 (DSYA-04)
+        self.tvoc2_registers[101] = 0x0000
+        self.tvoc2_registers[102] = 0x0007 if self.active_scenario == "ARC_FLASH" else 0x0000  # Relays K4, K5, K6
         self.tvoc2_registers[500] = 0x000E  # Installed modules (Internal HMI + X2 + X3)
+        self.tvoc2_registers[1000] = 0
 
         return {
             "step_index": self.current_step_idx,
