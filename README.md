@@ -362,8 +362,9 @@ Tarayıcınızdan şu adresi açınız:
 
 ## 🌐 Netlify Canlı Önizleme (Bağımsız İstemci Motoru)
 
-Proje, Python sunucusuna erişim olmayan ortamlarda (veya jüri değerlendirmesinde statik barındırma platformlarında) çalışabilmesi için **[frontend/js/client_engine.js](frontend/js/client_engine.js)** adında tam donanımlı bir **İstemci Tarafı Bağımsız Simülatör** içerir.
+Proje, Python sunucusuna erişim olmayan ortamlarda (veya jüri değerlendirmesinde statik barındırma platformlarında) çalışabilmesi için **[frontend/js/client_engine.js](frontend/js/client_engine.js)** adında tam donanımlı bir **İstemci Tarafı Bağımsız Simülatör** içerir.       
 
+* Projenin demosuna grand-palmier-39b474.netlify.app linkinden ulaşabilirsiniz.
 * Netlify veya GitHub Pages üzerinde açıldığında, backend bağlantısının olmadığını otomatik algılar.
 * Backend'deki fizik motorlarının, Modbus registerlarının ve 100 panoluk filonun birebir kopyasını tarayıcı JavaScript motoru üzerinde saniyede 1 kez çalıştırır.
 * Tüm butonlar, senaryolar, grafik dalgaları ve WhatsApp bildirim modalı Netlify üzerinde %100 canlı ve hareketli çalışır.
