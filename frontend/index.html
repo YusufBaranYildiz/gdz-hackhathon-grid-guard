@@ -4,78 +4,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grid-Guard AI | Pano ve Hücre İçi Anomali Erken Uyarı Sistemi</title>
-    <!-- Local & System Fonts (Strict Zero-Cloud / On-Premise compliant) -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="stylesheet" href="css/style.css?v=20260920_rev38">
 </head>
 <body class="dark-theme">
+    <!-- Unified industrial line icon set: one geometry, one stroke system, semantic color only where needed. -->
+    <svg class="icon-sprite" aria-hidden="true" focusable="false">
+        <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.5-2.7 8-7 10-4.3-2-7-5.5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="icon-bolt" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z"/></symbol>
+        <symbol id="icon-status-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8 12 2.5 2.5L16 9"/></symbol>
+        <symbol id="icon-status-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v5m0 3h.01"/></symbol>
+        <symbol id="icon-status-warn-double" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 8v5m0 3h.01M14.5 8v5m0 3h.01"/></symbol>
+        <symbol id="icon-status-danger" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6m0-6-6 6"/></symbol>
+        <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 19V5m0 14h16"/><path d="m7 15 3-4 3 2 4-6"/></symbol>
+        <symbol id="icon-register" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+        <symbol id="icon-alarm" viewBox="0 0 24 24"><path d="M6 17h12l-1.2-2v-4a4.8 4.8 0 0 0-9.6 0v4L6 17Zm4 3h4"/><path d="m5 5 2-2m12 2-2-2"/></symbol>
+        <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M5 6.5A3.5 3.5 0 0 1 8.5 3h7A3.5 3.5 0 0 1 19 6.5v5a3.5 3.5 0 0 1-3.5 3.5H11l-4.5 4v-4.7A3.5 3.5 0 0 1 5 11.5v-5Z"/><path d="M9 9h.01M12 9h.01M15 9h.01"/></symbol>
+        <symbol id="icon-bot" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="3"/><path d="M12 7V4m-2 0h4"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M9 16h6"/></symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24"><path d="m4 4 16 8-16 8 3-8-3-8Z"/><path d="M7 12h13"/></symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+        <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 4H4v4m12-4h4v4M8 20H4v-4m12 4h4v-4"/></symbol>
+        <symbol id="icon-restore" viewBox="0 0 24 24"><rect x="7" y="7" width="12" height="12" rx="1.5"/><path d="M16 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></symbol>
+        <symbol id="icon-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1" fill="currentColor"/><circle cx="17.5" cy="10.5" r="1" fill="currentColor"/><circle cx="8.5" cy="7.5" r="1" fill="currentColor"/><circle cx="6.5" cy="12.5" r="1" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2Z"/></symbol>
+        <symbol id="icon-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+        <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></symbol>
+        <symbol id="icon-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9v4m0 4h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    </svg>
+
     <!-- Top Navigation & SCADA Status Bar -->
     <header class="scada-header">
         <div class="header-left">
             <div class="logo-wrapper">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                    </svg>
-                </div>
+                <img src="img/gdz_logo.png" alt="GDZ Elektrik Logo" class="gdz-logo-img" title="GDZ Elektrik Dağıtım A.Ş.">
+                <div class="brand-divider" aria-hidden="true"></div>
                 <div class="logo-text">
-                    <h1>GRID-GUARD <span>AI</span></h1>
-                    <span class="sub-title">PANO & HÜCRE İÇİ ANOMALİ ERKEN UYARI SİSTEMİ</span>
+                    <h1>GRID-GUARD</h1>
+                    <div class="header-pano-select-wrapper" title="İzlenen AG Dağıtım Panosunu Değiştir">
+                        <select id="fleetSelect" class="header-pano-select" aria-label="İzlenen AG Dağıtım Panosu" title="İzlenen AG Dağıtım Panosunu Değiştir">
+                            <option value="1" selected>Buca TM · Pano #1 (Canlı)</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="substation-badge">
-                <span class="loc-pin">📍</span>
-                <div class="loc-details">
-                    <strong>GDZ İzmir Buca TM</strong>
-                    <span>TEDAŞ 1600 kVA AG Dağıtım Panosu #1</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="header-center">
-            <div class="cloud-policy-badge">
-                <span class="shield-icon">🛡️</span>
-                <span>ON-PREMISE EDGE GATEWAY (ZERO PUBLIC CLOUD)</span>
             </div>
         </div>
 
         <div class="header-right">
-            <div class="scada-comm-badge" id="scadaCommBadge">
-                <span class="pulse-dot"></span>
-                <span>MODBUS RTU: ONLINE (19200 8E1)</span>
+            <!-- 100 Pano Filo Yönetimi (TEDAŞ & GDZ Şartname Madde 5) -->
+            <div class="fleet-summary-pill header-tooltip-anchor" id="fleetSummaryPill" role="button" tabindex="0" aria-label="100 Pano Filo Yönetim Özeti">
+                <span class="icon-frame icon-frame--compact"><svg class="ui-icon" aria-hidden="true"><use href="#icon-grid"></use></svg></span>
+                <span class="fleet-status-dot"></span>
+                <span class="fleet-label">Filo:</span>
+                <strong class="fleet-count" id="fleetTotalCount">100 Pano</strong>
+                <span class="fleet-alarm-chip has-alarm" id="fleetAlarmChip">2 Alarm</span>
+                <span id="fleetSummaryText" class="sr-only">Filo: 100 Pano (98 Normal | 2 Alarm)</span>
+                <div class="header-hover-popover">
+                    <div class="popover-badge-row">
+                        <span class="popover-badge">ŞARTNAME MADDE 5</span>
+                        <span class="popover-tag">100 Pano Filosu</span>
+                    </div>
+                    <strong>Bölgesel Dağıtım Panosu Filo Özeti</strong>
+                    <p>İzmir, Manisa, Aydın, Denizli ve Muğla trafo merkezlerindeki 100 panonun anlık kestirimci kondisyon dağılımı:</p>
+                    <div class="fleet-popover-stats">
+                        <div class="f-stat-item">
+                            <span><span class="f-stat-dot ok"></span>Normal / Sağlıklı:</span>
+                            <strong id="fleetPopNormal">98 Pano</strong>
+                        </div>
+                        <div class="f-stat-item">
+                            <span><span class="f-stat-dot warn"></span>Aktif Alarm:</span>
+                            <strong id="fleetPopAlarms">2 Pano</strong>
+                        </div>
+                    </div>
+                    <p class="popover-note">Tıklayarak veya sol üstteki listeden filodaki panoları seçebilirsiniz.</p>
+                </div>
             </div>
-            <button class="btn-whatsapp-test" id="btnOpenPhone">
-                <span class="wa-icon">💬</span>
-                <span>Saha WhatsApp Alarmı</span>
-                <span class="badge-count" id="unreadAlertCount">0</span>
-            </button>
-            <div class="clock-display" id="clockDisplay">19:45:00</div>
+
+            <!-- On-Premise Yerel Ağ Geçidi & Modbus RTU -->
+            <div class="scada-comm-badge header-tooltip-anchor" id="scadaCommBadge">
+                <span class="pulse-dot"></span>
+                <span id="commBadgeText">Yerel Ağ · Modbus Canlı</span>
+                <span class="comm-edge-telemetry" id="commEdgeTelemetry">Trafik: 25.6 kbps | Gecikme: 4 ms | Bulut: Devre Dışı</span>
+                <div class="header-hover-popover">
+                    <div class="popover-badge-row">
+                        <span class="popover-badge">ON-PREMISE EDGE</span>
+                        <span class="popover-tag">Sıfır Bulut Bağımlılığı</span>
+                    </div>
+                    <strong>Yerel Uç Ağ Geçidi &amp; Modbus RTU</strong>
+                    <p>Sistem harici bulut servisleri (AWS/Azure/GCP) olmadan doğrudan trafo merkezindeki yerel uç ağ geçidinde (Edge Gateway) çalışır. ENTES ve TVOC-2 telemetrisi 9600 baud RS-485 üzerinden okunur.</p>
+                </div>
+            </div>
+
+            <!-- SCADA Theme Switcher Dropdown -->
+            <div class="theme-dropdown-anchor" id="themeDropdownAnchor">
+                <button type="button" class="btn-theme-trigger" id="btnThemeTrigger" aria-expanded="false" aria-haspopup="true" title="Arayüz Temasını Değiştir">
+                    <span class="icon-frame"><svg class="ui-icon" aria-hidden="true"><use href="#icon-palette"></use></svg></span>
+                    <span class="theme-active-label" id="themeActiveLabel">Tema</span>
+                    <svg class="chevron-icon" aria-hidden="true"><use href="#icon-chevron-down"></use></svg>
+                </button>
+                <div class="theme-menu-dropdown" id="themeMenuDropdown" role="menu" aria-label="Tema Seçenekleri">
+                    <div class="theme-menu-header">GÖRÜNÜM TEMASI</div>
+                    <button type="button" class="theme-item active" data-theme="default" role="menuitem">
+                        <span class="theme-swatch swatch-default"></span>
+                        <span class="theme-item-text">
+                            <span class="theme-title">Koyu tema</span>
+                            <span class="theme-desc">SCADA Cyber Dark (Varsayılan)</span>
+                        </span>
+                        <svg class="theme-check-icon" aria-hidden="true"><use href="#icon-check"></use></svg>
+                    </button>
+                    <button type="button" class="theme-item" data-theme="light" role="menuitem">
+                        <span class="theme-swatch swatch-light"></span>
+                        <span class="theme-item-text">
+                            <span class="theme-title">Beyaz tema</span>
+                            <span class="theme-desc">Açık Endüstriyel SCADA Modu</span>
+                        </span>
+                        <svg class="theme-check-icon" aria-hidden="true"><use href="#icon-check"></use></svg>
+                    </button>
+                    <button type="button" class="theme-item" data-theme="oled" role="menuitem">
+                        <span class="theme-swatch swatch-oled"></span>
+                        <span class="theme-item-text">
+                            <span class="theme-title">Siyah tema</span>
+                            <span class="theme-desc">OLED Saf Siyah &amp; Yüksek Kontrast</span>
+                        </span>
+                        <svg class="theme-check-icon" aria-hidden="true"><use href="#icon-check"></use></svg>
+                    </button>
+                    <button type="button" class="theme-item" data-theme="sanzo-wada" role="menuitem">
+                        <span class="theme-swatch swatch-sanzo-wada"></span>
+                        <span class="theme-item-text">
+                            <span class="theme-title">Sanzo Wada renkleri ile olan tema</span>
+                            <span class="theme-desc">A Dictionary of Color Combinations</span>
+                        </span>
+                        <svg class="theme-check-icon" aria-hidden="true"><use href="#icon-check"></use></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="header-tooltip-anchor">
+                <button class="btn-whatsapp-test" id="btnOpenPhone">
+                    <span class="icon-frame wa-icon"><svg class="ui-icon" aria-hidden="true"><use href="#icon-chat"></use></svg></span>
+                    <span>Saha Alarmı</span>
+                    <span class="badge-count" id="unreadAlertCount" style="display: none;">0</span>
+                </button>
+                <div class="header-hover-popover right-align">
+                    <strong>Saha WhatsApp &amp; SMS Botu</strong>
+                    <p>Fizik motoru tarafından üretilen kestirimci erken uyarıları, fotoğraflı arıza konumunu ve acil müdahale yönergesini gösterir.</p>
+                </div>
+            </div>
+            <div class="clock-display" id="clockDisplay" title="Yerel SCADA sistem saati (Milisaniye hassasiyeti)">19:45:00</div>
         </div>
     </header>
 
-    <!-- Interactive Scenario Controller Bar (Demo for Judges) -->
+    <!-- Interactive Scenario Controller Bar (Clean Segmented Control) -->
     <section class="scenario-toolbar">
-        <div class="scenario-label">
-            <span class="gear-icon">⚡</span>
-            <span>JÜRİ CANLI SENARYO TEST MERKEZİ:</span>
+        <div class="scenario-control-group">
+            <span class="scenario-lead">Senaryo:</span>
+            <div class="scenario-segmented-track">
+                <div class="scenario-btn-wrapper">
+                    <button class="btn-scenario active" data-scenario="NORMAL">
+                        <span class="icon-frame icon status-ok"><svg class="ui-icon" aria-hidden="true"><use href="#icon-status-ok"></use></svg></span>
+                        <span class="text">1. Normal İşletme</span>
+                    </button>
+                    <div class="scenario-hover-popover">
+                        <strong>Senaryo 1: Normal İşletme</strong>
+                        <p>Tüm sistem nominal standartlarda çalışır. Yük akımı dengeli, kontak direnci 15 µΩ, sıcaklık kalıntısı ΔT &lt; 2°C, bağıl nem %48, kısmi deşarj &lt;10 pps, ark riski yok.</p>
+                    </div>
+                </div>
+                <div class="scenario-btn-wrapper">
+                    <button class="btn-scenario" data-scenario="LOOSE_BOLT">
+                        <span class="icon-frame icon status-warn"><svg class="ui-icon" aria-hidden="true"><use href="#icon-status-warn"></use></svg></span>
+                        <span class="text">2. Gevşek Klemens (ΔT)</span>
+                    </button>
+                    <div class="scenario-hover-popover">
+                        <strong>Senaryo 2: Gevşek Klemens &amp; Termal Kalıntı</strong>
+                        <p>DSYA-04 çıkış klemensinde mekanik cıvata gevşemesi ve temas direnci artışı (150 µΩ) simüle edilir. Joule modeli ΔT &gt; 15°C fark üretir; yangın çıkmadan önce erken uyarı verilir.</p>
+                    </div>
+                </div>
+                <div class="scenario-btn-wrapper">
+                    <button class="btn-scenario" data-scenario="CONDENSATION_PD">
+                        <span class="icon-frame icon status-warn"><svg class="ui-icon" aria-hidden="true"><use href="#icon-status-warn-double"></use></svg></span>
+                        <span class="text">3. Yoğuşma &amp; PD</span>
+                    </button>
+                    <div class="scenario-hover-popover">
+                        <strong>Senaryo 3: Yüksek Nem &amp; Kısmi Deşarj</strong>
+                        <p>Pano içi bağıl nem %88+'a yükselir, çiğ noktası marjı 2.5°C'ye daralır. İzolatörlerde nem birikir, HFCT kısmi deşarj darbeleri 65+ pps'e çıkarak dielektrik atlama uyarısı üretir.</p>
+                    </div>
+                </div>
+                <div class="scenario-btn-wrapper">
+                    <button class="btn-scenario" data-scenario="ARC_FLASH">
+                        <span class="icon-frame icon status-danger"><svg class="ui-icon" aria-hidden="true"><use href="#icon-status-danger"></use></svg></span>
+                        <span class="text">4. Ark Flaş (TVOC-2)</span>
+                    </button>
+                    <div class="scenario-hover-popover">
+                        <strong>Senaryo 4: Hücre İçi Optik Ark Patlaması</strong>
+                        <p>DSYA hücresinde optik ark parlaması enjekte edilir. TVOC-2 optik dedektörleri ışığı 0.85 ms içinde algılar, ana şalteri açtırır, sesli alarm çalar ve sistemi kilitler.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="scenario-buttons">
-            <button class="btn-scenario active" data-scenario="NORMAL">
-                <span class="icon">🟢</span>
-                <span class="text">Senaryo 1: Normal İşletme</span>
-            </button>
-            <button class="btn-scenario" data-scenario="LOOSE_BOLT">
-                <span class="icon">🟡</span>
-                <span class="text">Senaryo 2: Klemens Gevşemesi (ΔT Residual)</span>
-            </button>
-            <button class="btn-scenario" data-scenario="CONDENSATION_PD">
-                <span class="icon">🟠</span>
-                <span class="text">Senaryo 3: Yoğuşma & Kısmi Deşarj (HFCT)</span>
-            </button>
-            <button class="btn-scenario" data-scenario="ARC_FLASH">
-                <span class="icon">🔴</span>
-                <span class="text">Senaryo 4: Ark Flaş (TVOC-2 &lt;1ms)</span>
-            </button>
-        </div>
+
         <div class="scenario-meta">
             <span class="meta-desc" id="scenarioDescription">Normal çalışma döngüsü. Tüm sensörler nominal sınırlarda.</span>
         </div>
@@ -86,11 +212,61 @@
         <!-- Card 1: Asset Health Index -->
         <div class="kpi-card card-health">
             <div class="card-header">
-                <h3>PANO SAĞLIK İNDEKSİ (HEALTH INDEX)</h3>
-                <span class="badge-std">IEEE P3835</span>
+                <div class="card-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                    <h3 class="card-title-interactive">PANO SAĞLIK İNDEKSİ</h3>
+                    <!-- Detailed Informative Hover Popover -->
+                    <div class="scada-info-popover" role="tooltip">
+                        <div class="popover-badge-row">
+                            <span class="popover-badge">IEEE P3835 STANDARDINA UYUMLU</span>
+                            <span class="popover-tag">Dinamik Risk Füzyonu</span>
+                        </div>
+                        <h4 class="popover-heading">Pano Sağlık İndeksi (Health Index) Nedir ve Ne İşe Yarar?</h4>
+                        <p class="popover-desc">
+                            Dağıtım panosunun ve 12 DSYA çıkış kolunun genel teknik kondisyonunu <strong>0 - 100%</strong> skalasında tek bir güvenilir risk indeksine dönüştürür. Klasik statik sıcaklık eşikleri yerine 4 farklı fiziksel ve elektriksel etkiyi sürekli füzyonlayarak <em>arıza, yangın ve ark patlaması meydana gelmeden günler/haftalar önce kestirimci erken uyarı</em> üretir.
+                        </p>
+                        <div class="popover-weights-title">4 Fiziksel Disiplin &amp; Ağırlık Dağılımı:</div>
+                        <div class="popover-weights-grid">
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#00e5ff;"></span>
+                                    <strong>Termal Kontak (%35):</strong>
+                                </div>
+                                <p>Bara ve 12 klemens çıkışındaki Joule (I²·R) matematiksel modeli ile ölçülen sıcaklık farkını (ΔT) denetler. Cıvata gevşemesi ve kontak korozyonunu aşırı ısınmadan önce tespit eder.</p>
+                            </div>
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#06b6d4;"></span>
+                                    <strong>İzolasyon / HFCT PD (%25):</strong>
+                                </div>
+                                <p>1-60 MHz yüksek frekanslı kısmi deşarj darbe sıklığı (pps) ve tepe genliğini (pC) izler. Epoksi ve mesnet izolatörlerinin dielektrik bozulmasını yakalar.</p>
+                            </div>
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#3b82f6;"></span>
+                                    <strong>Çiğ Noktası &amp; Nem (%20):</strong>
+                                </div>
+                                <p>Magnus formülüyle bara yüzey sıcaklığı ile çiğ noktası marjını (T_bara - T_dp) izler. Yüzeyde nem yoğuşması ve ark atlaması riskini önler.</p>
+                            </div>
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#a855f7;"></span>
+                                    <strong>Şebeke Kalitesi (%20):</strong>
+                                </div>
+                                <p>Akım THD harmonik bozulmaları ve 3-faz yük dengesizliklerini değerlendirir.</p>
+                            </div>
+                        </div>
+                        <div class="popover-scale-chips">
+                            <span class="chip-opt">● %85-100: Optimal</span>
+                            <span class="chip-att">● %70-84: Dikkat</span>
+                            <span class="chip-wrn">● %45-69: Uyarı</span>
+                            <span class="chip-crt">● &lt;%45: Kritik Risk</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="card-meta">SENTETİK VERİ</span>
             </div>
             <div class="health-content">
-                <div class="gauge-container">
+                <div class="gauge-container" title="Panonun genel sağlık yüzdesi. Düşük değerler çoklu arıza öncülünü gösterir.">
                     <svg class="gauge-svg" viewBox="0 0 120 120">
                         <circle class="gauge-bg" cx="60" cy="60" r="50"></circle>
                         <circle class="gauge-progress" id="gaugeProgress" cx="60" cy="60" r="50"></circle>
@@ -101,24 +277,24 @@
                     </div>
                 </div>
                 <div class="health-breakdown">
-                    <div class="status-chip" id="healthStatusChip">OPTIMAL</div>
+                    <div class="status-chip" id="healthStatusChip" title="Kondisyon Durumu: Yeşil: Optimal, Sarı: Dikkat, Turuncu: Uyarı, Kırmızı: Kritik Acil Müdahale">OPTİMAL</div>
                     <div class="sub-bars">
-                        <div class="bar-row">
+                        <div class="bar-row" title="Bara ve klemens temas direnci kalitesi (%35 ağırlık)">
                             <span>Termal Kontak (35%):</span>
                             <div class="progress-bar"><div class="fill" id="barThermal" style="width: 98%;"></div></div>
                             <strong id="valThermal">98%</strong>
                         </div>
-                        <div class="bar-row">
+                        <div class="bar-row" title="HFCT sensörüyle izolatör dielektrik sağlamlığı (%25 ağırlık)">
                             <span>İzolasyon / PD (25%):</span>
                             <div class="progress-bar"><div class="fill" id="barInsulation" style="width: 96%;"></div></div>
                             <strong id="valInsulation">96%</strong>
                         </div>
-                        <div class="bar-row">
+                        <div class="bar-row" title="Magnus formülüyle yoğuşmasızlık ve mikroiklim skoru (%20 ağırlık)">
                             <span>Çiğ Noktası / Nem (20%):</span>
                             <div class="progress-bar"><div class="fill" id="barEnv" style="width: 95%;"></div></div>
                             <strong id="valEnv">95%</strong>
                         </div>
-                        <div class="bar-row">
+                        <div class="bar-row" title="Harmonik bozulma (THD) ve faz dengesi skoru (%20 ağırlık)">
                             <span>Şebeke Kalitesi (20%):</span>
                             <div class="progress-bar"><div class="fill" id="barElec" style="width: 99%;"></div></div>
                             <strong id="valElec">99%</strong>
@@ -131,30 +307,53 @@
         <!-- Card 2: Physics Thermal Residual -->
         <div class="kpi-card card-thermal">
             <div class="card-header">
-                <h3>JOULE TERMAL MODELİ & RESIDUAL</h3>
-                <span class="badge-std">IEEE Trans. Pwr. Del.</span>
+                <div class="card-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                    <h3 class="card-title-interactive">JOULE TERMAL MODELİ</h3>
+                    <!-- Detailed Informative Hover Popover -->
+                    <div class="scada-info-popover" role="tooltip">
+                        <div class="popover-badge-row">
+                            <span class="popover-badge">FİZİK TABANLI MODEL (I²·R)</span>
+                            <span class="popover-tag">Kestirimci Termal Analiz</span>
+                        </div>
+                        <h4 class="popover-heading">Joule Termal Modeli ve ΔT Kalıntısı Nedir ve Ne İşe Yarar?</h4>
+                        <p class="popover-desc">
+                            Akım taşıyan bakır baralarda oluşan ısıl gücü <strong>P = I² · R</strong> formülüyle hesaplar. Nominal kontak direnci (15 µΩ) ve yük akımına göre baranın olması gereken teorik sıcaklığı (<em>Joule Model Beklenen</em>) dinamik olarak üretir.
+                        </p>
+                        <div class="popover-weights-title">Fiziksel Model Kalıntısı (ΔT = T_ölçülen - T_model):</div>
+                        <p class="popover-desc">
+                            Klasik sistemler sadece statik sıcaklık eşiği (örn. &gt;75°C) aşılınca alarm verir. Bu durum kışın veya düşük yükte gevşek klemensleri gizler. Joule modeli ise <strong>ölçülen sıcaklık ile beklenen model arasındaki farkı (ΔT)</strong> izleyerek cıvata gevşemesini ve korozyonu yangın çıkmadan haftalar önce yakalar.
+                        </p>
+                        <div class="popover-scale-chips">
+                            <span class="chip-opt">● ΔT &lt; 5°C: Nominal Kontak</span>
+                            <span class="chip-att">● ΔT 5-10°C: Gevşeklik Başlangıcı</span>
+                            <span class="chip-wrn">● ΔT 10-15°C: Ciddi Gevşeklik</span>
+                            <span class="chip-crt">● ΔT &gt; 15°C: Kritik Yangın Riski</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="card-meta">FİZİK MODELİ (ΔT)</span>
             </div>
             <div class="thermal-kpi-body">
                 <div class="main-metric">
-                    <div class="metric-block">
-                        <span class="label">Ölçülen Bara Sıcaklığı:</span>
+                    <div class="metric-block" title="Baraya monte PT100 / kızılötesi sensörün anlık fiziksel sıcaklık ölçümüdür.">
+                        <span class="label" id="thermalCardMeasLabel">Ölçülen Bara Sıcaklığı:</span>
                         <span class="val highlight" id="measuredBusbarTemp">36.2 °C</span>
                     </div>
-                    <div class="metric-block">
-                        <span class="label">Joule Model Beklenen:</span>
+                    <div class="metric-block" title="Anlık yük akımı (I) ve nominal dirence (R) göre barada oluşması gereken matematiksel referans sıcaklıktır.">
+                        <span class="label" id="thermalCardPredLabel">Joule Model Beklenen:</span>
                         <span class="val" id="predictedBusbarTemp">34.8 °C</span>
                     </div>
                 </div>
-                <div class="residual-badge-container">
+                <div class="residual-badge-container" title="Ölçülen ile teorik model arasındaki sapma (ΔT = T_ölçülen - T_model). Pozitif yüksek değer kontak gevşemesini belgeler.">
                     <div class="residual-tag" id="residualTag">
-                        <span class="r-label">ΔT Residual:</span>
+                        <span class="r-label">ΔT Model Farkı:</span>
                         <strong class="r-val" id="residualValue">+1.4 °C</strong>
                         <span class="r-status" id="residualStatus">NOMİNAL DİRENÇ</span>
                     </div>
                 </div>
                 <div class="thermal-sub-meta">
-                    <span>Ortam Sıcaklığı: <strong id="ambientTemp">27.5 °C</strong></span>
-                    <span>Primer Yük Akımı: <strong id="loadCurrent">324.5 A</strong></span>
+                    <span title="Pano içi hava sıcaklığı. Isı transferi ve ortam referans bazıdır.">Ortam Sıcaklığı: <strong id="ambientTemp">27.5 °C</strong></span>
+                    <span title="ENTES MPR-53CS analizöründen Modbus RTU ile okunan 3-faz efektif primer akım ortalamasıdır.">Primer Yük Akımı: <strong id="loadCurrent">324.5 A</strong></span>
                 </div>
             </div>
         </div>
@@ -162,32 +361,68 @@
         <!-- Card 3: Dew Point & HFCT PD Fusion -->
         <div class="kpi-card card-dew-pd">
             <div class="card-header">
-                <h3>ÇİĞ NOKTASI (NEM) & HFCT PD</h3>
-                <span class="badge-std">Techimp 1-60 MHz</span>
+                <div class="card-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                    <h3 class="card-title-interactive">ÇİĞ NOKTASI &amp; HFCT PD</h3>
+                    <!-- Detailed Informative Hover Popover -->
+                    <div class="scada-info-popover" role="tooltip">
+                        <div class="popover-badge-row">
+                            <span class="popover-badge">MAGNUS FORMÜLÜ &amp; TECHIMP HFCT</span>
+                            <span class="popover-tag">Yoğuşma &amp; İzolasyon Teşhisi</span>
+                        </div>
+                        <h4 class="popover-heading">Çiğ Noktası Marjı ve HFCT Kısmi Deşarj Nedir ve Ne İşe Yarar?</h4>
+                        <p class="popover-desc">
+                            Pano içi mikroiklim koşullarını ve katı yalıtkanların (epoksi, mesnet izolatörleri) dielektrik yaşlanmasını eş zamanlı izleyen hibrit erken uyarı modülüdür.
+                        </p>
+                        <div class="popover-weights-title">2 Kritik Erken Uyarı Mekanizması:</div>
+                        <div class="popover-weights-grid">
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#06b6d4;"></span>
+                                    <strong>Çiğ Noktası Marjı (Magnus Formülü):</strong>
+                                </div>
+                                <p>Havadaki bağıl nem (RH) ve ortam sıcaklığından su buharının sıvı hale geçeceği yoğuşma sıcaklığı (T_dp) türetilir. Bara sıcaklığı çiğ noktasına 3°C'den fazla yaklaşırsa baralarda nem birikir ve yüzey arkı riski doğar.</p>
+                            </div>
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#a855f7;"></span>
+                                    <strong>HFCT Kısmi Deşarj (Techimp 30/50):</strong>
+                                </div>
+                                <p>1-60/80 MHz yüksek frekanslı akım trafosu kablo başlıkları ve izolatörlerdeki mikro kıvılcımları yakalar. Darbe sıklığı (pps) ve tepe genlik (pC) ile delinme arızasını aylar öncesinden haber verir.</p>
+                            </div>
+                        </div>
+                        <div class="popover-scale-chips">
+                            <span class="chip-opt">● Marj &gt;5°C: Güvenli</span>
+                            <span class="chip-att">● Marj 3-5°C: Nemlenme Riski</span>
+                            <span class="chip-wrn">● PD &gt;30 pps: İzolasyon Yaşlanması</span>
+                            <span class="chip-crt">● PD &gt;50 pps: İzolasyon Delinmesi</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="card-meta">HFCT SİMÜLASYONU</span>
             </div>
             <div class="dew-kpi-body">
                 <div class="dew-metrics">
-                    <div class="metric-cell">
+                    <div class="metric-cell" title="Pano içi havanın su buharı doygunluk oranı. %80 üzeri yoğuşma açısından risklidir.">
                         <span class="lbl">Bağıl Nem (RH):</span>
                         <span class="num" id="rhValue">48.2 %</span>
                     </div>
-                    <div class="metric-cell">
+                    <div class="metric-cell" title="Magnus formülü ile hesaplanan, su buharının yoğuşarak su damlacıklarına dönüştüğü sıcaklık eşiğidir.">
                         <span class="lbl">Çiğ Noktası (Tdp):</span>
                         <span class="num" id="dewPointValue">15.6 °C</span>
                     </div>
-                    <div class="metric-cell">
+                    <div class="metric-cell" title="Bara sıcaklığı ile çiğ noktası arasındaki güvenlik farkıdır (T_bara - T_dp). Güvenli işletme için daima 3°C üzerinde olmalıdır.">
                         <span class="lbl">Yoğuşma Marjı:</span>
                         <span class="num highlight" id="dewMarginValue">20.6 °C</span>
                     </div>
                 </div>
-                <div class="pd-activity-box">
+                <div class="pd-activity-box" title="Techimp HFCT 30/50 yüksek frekans trafosu ile 1-60 MHz bandında ölçülen dielektrik mikro deşarj etkinliği.">
                     <div class="pd-header">
-                        <span>TECHIMP HFCT KISMİ DEŞARJ:</span>
+                        <span>SENTETİK HFCT KISMİ DEŞARJ:</span>
                         <span class="pd-state-chip" id="pdStateChip">TEMİZ</span>
                     </div>
                     <div class="pd-values">
-                        <span>Darbe Sıklığı: <strong id="pdPps">4.8 pps</strong></span>
-                        <span>Tepe Genlik: <strong id="pdPeak">32 pC</strong></span>
+                        <span title="Saniyede oluşan yüksek frekanslı kısmi deşarj darbe adedidir (Pulse Per Second).">Darbe Sıklığı: <strong id="pdPps">4.8 pps</strong></span>
+                        <span title="Kısmi deşarj darbelerinin pik elektriksel yük büyüklüğüdür (Pico-Coulomb).">Tepe Genlik: <strong id="pdPeak">32 pC</strong></span>
                     </div>
                 </div>
             </div>
@@ -196,54 +431,128 @@
         <!-- Card 4: ABB TVOC-2 Arc Protection -->
         <div class="kpi-card card-arc">
             <div class="card-header">
-                <h3>ABB TVOC-2 ARK KORUMA SİSTEMİ</h3>
-                <span class="badge-std">SIL-2 / &lt;1 ms</span>
+                <div class="card-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                    <h3 class="card-title-interactive">ABB TVOC-2 ARK KORUMA</h3>
+                    <!-- Detailed Informative Hover Popover -->
+                    <div class="scada-info-popover" role="tooltip">
+                        <div class="popover-badge-row">
+                            <span class="popover-badge">ABB TVOC-2 &amp; IEC 62271-200</span>
+                            <span class="popover-tag">&lt;1 ms Ultra Hızlı Açtırma</span>
+                        </div>
+                        <h4 class="popover-heading">ABB TVOC-2 Optik Ark Koruma Sistemi Nedir ve Ne İşe Yarar?</h4>
+                        <p class="popover-desc">
+                            Pano içerisinde oluşabilecek ölümcül elektrik ark patlamalarını optik fiber sensörlerle ışık hızında algılayan ve ana kesiciye <strong>1 milisaniyenin altında (&lt;0.85 ms)</strong> açtırma sinyali gönderen güvenlik sistemidir.
+                        </p>
+                        <div class="popover-weights-title">3 Bölme Optik Fiber Dağılımı (30 Kanal):</div>
+                        <div class="popover-weights-grid">
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#00e5ff;"></span>
+                                    <strong>X1 Giriş Modülü (10 Kanal):</strong>
+                                </div>
+                                <p>10 adet noktasal fiber sensör ana bara (L1, L2, L3) ve klemens bölmelerini kesintisiz gözetler.</p>
+                            </div>
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#06b6d4;"></span>
+                                    <strong>X2 Giriş Modülü (10 Kanal):</strong>
+                                </div>
+                                <p>10 adet optik sensör 12 adet DSYA dikey sigortalı yük ayırıcı çıkış hücresini gözetler.</p>
+                            </div>
+                            <div class="p-weight-item">
+                                <div class="p-weight-head">
+                                    <span class="p-weight-color" style="background:#3b82f6;"></span>
+                                    <strong>X3 Giriş Modülü (10 Kanal):</strong>
+                                </div>
+                                <p>Sayaç bölmesi, parafudr ve yardımcı donanım alanlarını kesintisiz gözetler.</p>
+                            </div>
+                        </div>
+                        <div class="popover-scale-chips">
+                            <span class="chip-opt">● Açtırma: &lt;1 ms</span>
+                            <span class="chip-att">● 30 Optik Kanal</span>
+                            <span class="chip-wrn">● DTC Arıza Kodları</span>
+                            <span class="chip-crt">● PDU 1000 Reset</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="card-meta">TVOC-2 SİMÜLASYONU</span>
             </div>
             <div class="arc-kpi-body">
                 <div class="arc-status-row">
-                    <div class="arc-indicator" id="arcIndicator">
-                        <div class="status-light" id="arcStatusLight"></div>
+                    <div class="arc-indicator" id="arcIndicator" title="TVOC-2 optik ark dedektörleri canlı izlemede.">
+                        <div class="arc-status-icon-box" id="arcStatusIconBox">
+                            <div class="status-light" id="arcStatusLight"></div>
+                            <svg class="ui-icon arc-danger-warn-icon" id="arcTrippedIcon" aria-hidden="true"><use href="#icon-alert-triangle"></use></svg>
+                        </div>
                         <div class="status-text">
-                            <strong id="arcSystemState">SYSTEM NORMAL</strong>
-                            <span>Optik Ark Dedektörleri Aktif (30 Kanal)</span>
+                            <strong id="arcSystemState">SİSTEM NORMAL</strong>
+                            <span id="arcSystemSub">Optik Ark Dedektörleri Aktif (30 Kanal)</span>
                         </div>
                     </div>
                 </div>
                 <div class="arc-channel-grid">
-                    <div class="channel-group">
+                    <div class="channel-group" title="X1 modülüne bağlı 10 adet ana bara optik fiber sensörünün canlı sağlık durumu.">
                         <span class="grp-title">Bara Fiberleri (X1):</span>
                         <span class="grp-val ok" id="x1Status">10/10 OK</span>
                     </div>
-                    <div class="channel-group">
+                    <div class="channel-group" title="X2 modülüne bağlı 10 adet DSYA klemens hücresi optik sensörünün canlı durumu.">
                         <span class="grp-title">DSYA Hücreleri (X2):</span>
                         <span class="grp-val ok" id="x2Status">10/10 OK</span>
                     </div>
-                    <div class="channel-group">
+                    <div class="channel-group" title="X3 modülüne bağlı sayaç ve yardımcı kompartıman fiber sensörlerinin canlı durumu.">
                         <span class="grp-title">Sayaç &amp; Diğer (X3):</span>
                         <span class="grp-val ok" id="x3Status">10/10 OK</span>
                     </div>
                 </div>
                 <div class="trip-counter-row">
-                    <span>Toplam Olay Kaydı (PDU 149): <strong id="tripCount">0</strong></span>
-                    <span>Açtırma Yanıt Süresi: <strong>&lt; 0.85 ms</strong></span>
+                    <span title="TVOC-2 tarafından sisteme kaydedilmiş toplam ark açtırma adedidir.">Olay Kaydı: <strong id="tripCount">0</strong></span>
+                    <span title="Optik ışık algılamadan şalter açtırma tristör çıkışına kadar geçen fiziksel süredir (0.85 ms).">Açtırma Hızı: <strong>0.85 ms</strong></span>
+                </div>
+                <div class="arc-action-row">
+                    <button class="btn-tvoc-reset" id="btnTvocReset" title="Modbus PDU 1000 registerine '1' yazarak TVOC-2 açtırma kilidini uzaktan güvenle sıfırlar">
+                        <svg class="ui-icon" style="width:14px;height:14px;" aria-hidden="true"><use href="#icon-restore"></use></svg>
+                        <span>TVOC-2 Sıfırla (PDU 1000)</span>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Main Operational Workspace: Digital Twin & Live Telemetry -->
-    <main class="main-workspace">
+    <main class="main-workspace" id="mainWorkspace">
         <!-- Left: TEDAŞ 1600 kVA AG Pano Digital Twin -->
         <section class="digital-twin-section">
             <div class="panel-header">
                 <div class="title-with-badge">
-                    <h2>TEDAŞ 1600 kVA DAHİLİ AG PANO DİJİTAL İKİZİ</h2>
+                    <div class="panel-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                        <h2 class="panel-title-interactive">TEDAŞ 1600 kVA DAHİLİ AG PANO DİJİTAL İKİZİ</h2>
+                        <div class="scada-info-popover" role="tooltip">
+                            <div class="popover-badge-row">
+                                <span class="popover-badge">TEDAŞ STANDARDI</span>
+                                <span class="popover-tag">Gerçek Zamanlı CAD / SVG İkiz</span>
+                            </div>
+                            <h4 class="popover-heading">TEDAŞ 1600 kVA AG Pano Dijital İkizi Nedir?</h4>
+                            <p class="popover-desc">
+                                TEDAŞ şartnamesine uygun 1600 kVA trafo AG dağıtım panosunun milimetrik CAD/SVG dijital ikizidir. 3 faz bakır ana bara sistemi (L1, L2, L3) ve 12 adet DSYA dikey sigortalı yük ayırıcı çıkış kolunu canlı termal ısı haritasıyla simüle eder.
+                            </p>
+                            <div class="popover-weights-title">İnteraktif Özellikler:</div>
+                            <p class="popover-desc">
+                                Herhangi bir DSYA çıkış hücresine tıklayarak o kolun faz akımı, klemens sıcaklığı, sigorta durumu ve yüklenme oranını sağ tarafta açılan detay çekmecesinde anlık olarak inceleyebilirsiniz.
+                            </p>
+                            <div class="popover-scale-chips">
+                                <span class="chip-opt">● &lt;50°C: Normal</span>
+                                <span class="chip-att">● 50-70°C: Sıcak</span>
+                                <span class="chip-wrn">● &gt;75°C: Aşırı Isınma</span>
+                                <span class="chip-crt">● Ark Flaş Korumalı</span>
+                            </div>
+                        </div>
+                    </div>
                     <span class="drawing-ref">TEDAŞ-MLZ/2003-06.B EK-II/14 (1600x1500x450 mm)</span>
                 </div>
                 <div class="twin-legend">
-                    <span class="leg-item"><span class="color-box normal"></span> Normal (&lt;50°C)</span>
-                    <span class="leg-item"><span class="color-box warm"></span> Sıcak (50-70°C)</span>
-                    <span class="leg-item"><span class="color-box danger"></span> Aşırı Isınma (&gt;75°C)</span>
+                    <span class="leg-item" title="Nominal temas direnci ve sağlıklı yüklenme sıcaklığı"><span class="color-box normal"></span> Normal (&lt;50°C)</span>
+                    <span class="leg-item" title="Yüksek yüklenme veya başlangıç kontak gevşemesi"><span class="color-box warm"></span> Sıcak (50-70°C)</span>
+                    <span class="leg-item" title="Kritik klemens gevşemesi; acil yangın ve ark tehlikesi!"><span class="color-box danger"></span> Aşırı Isınma (&gt;75°C)</span>
                 </div>
             </div>
 
@@ -252,11 +561,22 @@
                 <!-- SVG injected via digital_twin.js -->
             </div>
 
+            <!-- Prescriptive AI Maintenance Action Card (Reçeteli Saha Bakım Kartı) -->
+            <div class="prescriptive-action-card" id="prescriptiveActionCard">
+                <div class="prescriptive-icon-frame" id="prescriptiveIconFrame">
+                    <svg class="ui-icon" style="width:16px;height:16px;" aria-hidden="true"><use href="#icon-check"></use></svg>
+                </div>
+                <div class="prescriptive-content">
+                    <span class="prescriptive-label" id="prescriptiveLabel">REÇETELİ SAHA BAKIM AKSİYONU (PRESCRIPTIVE AI):</span>
+                    <strong class="prescriptive-text" id="prescriptiveActionText">Aksiyon: Sistem nominal çalışıyor. Periyodik kestirimci bakım takvimine göre bir sonraki kontrol: 30 gün sonra.</strong>
+                </div>
+            </div>
+
             <!-- Detail Popover Drawer for clicked DSYA / Component -->
             <div class="component-drawer" id="componentDrawer">
                 <div class="drawer-header">
                     <h4 id="drawerTitle">DSYA-04 Çıkış Kolu İnceleme</h4>
-                    <button class="btn-close-drawer" id="btnCloseDrawer">&times;</button>
+                    <button class="btn-close-drawer" id="btnCloseDrawer" aria-label="Detay panelini kapat"><svg class="ui-icon" aria-hidden="true"><use href="#icon-close"></use></svg></button>
                 </div>
                 <div class="drawer-body" id="drawerBody">
                     <!-- Dynamic Component Details -->
@@ -264,35 +584,60 @@
             </div>
         </section>
 
+        <!-- Draggable Workspace Splitter (Boyut Ayarlayıcı) -->
+        <div class="workspace-splitter" id="workspaceSplitter" title="Sürükleyerek pano ve analitik genişlik oranını serbestçe ayarlayın" role="separator" aria-orientation="vertical">
+            <span class="splitter-handle">⋮</span>
+        </div>
+
         <!-- Right: Analytics, Modbus Inspector & Alarm Logs -->
         <section class="analytics-section">
             <!-- Tabs Header -->
             <div class="analytics-tabs">
-                <button class="tab-btn active" data-tab="tabCharts">📈 Canlı Grafikler</button>
-                <button class="tab-btn" data-tab="tabModbus">📟 Modbus Register Tablosu</button>
-                <button class="tab-btn" data-tab="tabAlarms">🚨 Alarm &amp; SOE Olay Günlüğü</button>
+                <button class="tab-btn active" data-tab="tabCharts" title="Canlı Grafikler - Gerçek zamanlı sıcaklık, Joule modeli, çiğ marjı ve HFCT kısmi deşarj grafikleri"><span class="icon-frame icon-frame--compact"><svg class="ui-icon ui-icon--nav" aria-hidden="true"><use href="#icon-chart"></use></svg></span><span>Canlı Grafikler</span></button>
+                <button class="tab-btn" data-tab="tabModbus" title="Modbus Register Tablosu - ENTES MPR-53CS ve ABB TVOC-2 Modbus RTU/TCP register haritası"><span class="icon-frame icon-frame--compact"><svg class="ui-icon ui-icon--nav" aria-hidden="true"><use href="#icon-register"></use></svg></span><span>Register Tablosu</span></button>
+                <button class="tab-btn" data-tab="tabAlarms" title="Alarm &amp; SOE Olay Günlüğü - Milisaniye zaman damgalı Sequence of Events (SOE) ve kestirimci erken uyarı kayıtları"><span class="icon-frame icon-frame--compact"><svg class="ui-icon ui-icon--nav" aria-hidden="true"><use href="#icon-alarm"></use></svg></span><span>Olay Günlüğü</span></button>
             </div>
 
             <!-- Tab 1: Live Time Series Charts -->
             <div class="tab-content active" id="tabCharts">
                 <div class="chart-card">
-                    <div class="chart-title">
-                        <h4>İletken Sıcaklığı vs. Fiziksel Joule Modeli (Residual Takibi)</h4>
+                    <div class="chart-title panel-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                        <h4 class="chart-title-interactive">İletken Sıcaklığı vs. Fiziksel Joule Modeli (Residual Takibi)</h4>
                         <div class="chart-legend-row">
-                            <span class="leg blue">■ Yük Akımı (A)</span>
-                            <span class="leg red">■ Ölçülen Sıcaklık (°C)</span>
-                            <span class="leg dashed">--- Joule Model Beklenen (°C)</span>
+                            <span class="leg blue" title="ENTES MPR-53CS'den okunan anlık primer yük akımı">■ Yük Akımı (A)</span>
+                            <span class="leg red" title="Bara üzerine takılı sıcaklık sensörü gerçek ölçümü">■ Ölçülen Sıcaklık (°C)</span>
+                            <span class="leg dashed" title="P = I²·R fizik denklemiyle hesaplanan referans sıcaklık">--- Joule Model Beklenen (°C)</span>
+                        </div>
+                        <div class="scada-info-popover" role="tooltip">
+                            <div class="popover-badge-row">
+                                <span class="popover-badge">ZAMAN SERİSİ ANALİTİĞİ</span>
+                                <span class="popover-tag">ΔT Residual Drift</span>
+                            </div>
+                            <h4 class="popover-heading">Termal Model Kalıntısı Grafiği Ne İşe Yarar?</h4>
+                            <p class="popover-desc">
+                                Akım dalgalanmalarına (mavi çizgi) karşılık, baranın ölçülen sıcaklığı (kırmızı) ile fiziksel Joule modeli tahmini (kesikli çizgi) arasındaki korelasyonu canlı çizer. İki çizgi arasındaki kalıcı açılma (residual drift), klemens cıvatalarında gevşeme veya kontak korozyonunun başladığının kesin kanıtıdır.
+                            </p>
                         </div>
                     </div>
                     <canvas id="chartThermal" height="150"></canvas>
                 </div>
 
                 <div class="chart-card">
-                    <div class="chart-title">
-                        <h4>Çiğ Noktası Marjı &amp; Techimp HFCT Kısmi Deşarj (PD) Nabzı</h4>
+                    <div class="chart-title panel-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                        <h4 class="chart-title-interactive">Çiğ Noktası Marjı &amp; Sentetik HFCT Kısmi Deşarj (PD) Nabzı</h4>
                         <div class="chart-legend-row">
-                            <span class="leg green">■ Çiğ Marjı (°C)</span>
-                            <span class="leg amber">■ HFCT PD (pps)</span>
+                            <span class="leg green" title="Magnus formülü ile hesaplanan yoğuşma güvenlik marjı (T_bara - T_dp)">■ Çiğ Marjı (°C)</span>
+                            <span class="leg amber" title="Techimp HFCT sensörü saniyelik mikro kısmi deşarj darbe frekansı">■ HFCT PD (pps)</span>
+                        </div>
+                        <div class="scada-info-popover" role="tooltip">
+                            <div class="popover-badge-row">
+                                <span class="popover-badge">MİKROİKLİM &amp; YALITIM</span>
+                                <span class="popover-tag">HFCT Pulse Tracking</span>
+                            </div>
+                            <h4 class="popover-heading">Çiğ Marjı ve HFCT PD Grafiği Ne İşe Yarar?</h4>
+                            <p class="popover-desc">
+                                Ortamın yoğuşma güvenlik marjı (yeşil) ile yüksek frekanslı kısmi deşarj darbelerini (turuncu) korele eder. Nem marjı 3°C'nin altına düştüğünde baralarda oluşan yoğuşmanın mikro deşarjları nasıl tetiklediğini ve yalıtım delinme riskini kanıtlar.
+                            </p>
                         </div>
                     </div>
                     <canvas id="chartDewPD" height="150"></canvas>
@@ -304,25 +649,26 @@
                 <div class="modbus-inspector">
                     <div class="modbus-meta">
                         <div class="search-box">
-                            <input type="text" id="modbusSearch" placeholder="Register ara (örn: 0, Akım, THD, Trip, TVOC)...">
+                            <input type="text" id="modbusSearch" placeholder="Register ara (örn: 0, Akım, THD, Trip, TVOC)..." title="Register adresi, cihaz adı veya mühendislik parametresine göre filtreleyin">
                         </div>
                         <div class="devices-filter">
-                            <label><input type="radio" name="devFilter" value="ALL" checked> Tümü</label>
-                            <label><input type="radio" name="devFilter" value="MPR"> ENTES MPR-53CS</label>
-                            <label><input type="radio" name="devFilter" value="TVOC"> ABB TVOC-2</label>
+                            <label title="Tüm Modbus RTU ve sanal AI registerlarını listeler"><input type="radio" name="devFilter" value="ALL" checked> Tümü</label>
+                            <label title="ENTES MPR-53CS enerji analizörü Holding Registerları (V, I, P, Q, THD)"><input type="radio" name="devFilter" value="MPR"> ENTES MPR-53CS</label>
+                            <label title="ABB TVOC-2 optik ark dedektörü registerları (Trip, Optik Kanallar, PDU 1000)"><input type="radio" name="devFilter" value="TVOC"> ABB TVOC-2</label>
+                            <label title="Grid-Guard AI Uç Sanal Holding Registerları (40001-40010)"><input type="radio" name="devFilter" value="AI"> Grid-Guard AI (Sanal)</label>
                         </div>
                     </div>
                     <div class="table-scroll">
                         <table class="modbus-table" id="modbusTable">
                             <thead>
                                 <tr>
-                                    <th>Cihaz</th>
-                                    <th>Dec</th>
-                                    <th>Hex</th>
-                                    <th>Register Tanımı</th>
-                                    <th>Ham Değer</th>
-                                    <th>Mühendislik Birimi</th>
-                                    <th>Tip</th>
+                                    <th title="Fiziksel saha cihazı kimliği">Cihaz</th>
+                                    <th title="Onluk sistemdeki Modbus Holding Register adresi">Dec</th>
+                                    <th title="Onaltılık sistemdeki register adresi">Hex</th>
+                                    <th title="Sensör parametre tanımı ve register işlevi">Register Tanımı</th>
+                                    <th title="RS-485 hattından okunan ham register içeriği">Ham Değer</th>
+                                    <th title="Dönüştürülmüş gerçek mühendislik birimi">Mühendislik Birimi</th>
+                                    <th title="IEEE 754 Float32 veya Uint16 formatı">Tip</th>
                                 </tr>
                             </thead>
                             <tbody id="modbusTableBody">
@@ -335,6 +681,25 @@
 
             <!-- Tab 3: SOE Event & Alarm Log -->
             <div class="tab-content" id="tabAlarms">
+                <div class="alarm-toolbar-header">
+                    <div class="alarm-title-group panel-tooltip-anchor" tabindex="0" aria-haspopup="true">
+                        <span class="alarm-subtitle">Gerçek Zamanlı SOE (Sequence of Events) ve Arıza Kayıtları</span>
+                        <div class="scada-info-popover" role="tooltip">
+                            <div class="popover-badge-row">
+                                <span class="popover-badge">SOE GÜNLÜĞÜ</span>
+                                <span class="popover-tag">Adli Bilişim &amp; Erken Uyarı</span>
+                            </div>
+                            <h4 class="popover-heading">Sequence of Events (SOE) Kayıtları Ne İşe Yarar?</h4>
+                            <p class="popover-desc">
+                                Panoda meydana gelen tüm fiziksel ve elektriksel olayları milisaniye hassasiyetli zaman damgalarıyla kaydeder. Erken uyarı algoritmalarının kök neden tespitlerini, klemens gevşekliği ve kısmi deşarj uyarılarını kronolojik olarak arşivler. JSON formatında indirilerek adli raporlama yapılabilir.
+                            </p>
+                        </div>
+                    </div>
+                    <button class="btn-export-report" id="btnExportReport" title="En son telemetri ve olay adli bilişim raporunu JSON formatında indir">
+                        <svg class="ui-icon" style="width:14px;height:14px;" aria-hidden="true"><use href="#icon-register"></use></svg>
+                        <span>Olay Raporunu İndir (JSON)</span>
+                    </button>
+                </div>
                 <div class="alarm-feed" id="alarmFeed">
                     <!-- Populated dynamically by app.js -->
                 </div>
@@ -350,14 +715,26 @@
                 <div class="camera"></div>
             </div>
             <div class="phone-screen">
-                <!-- WhatsApp Chat Header -->
+                <!-- Notification Chat Header -->
                 <div class="wa-chat-header">
-                    <button class="btn-wa-back" id="btnClosePhone">&larr;</button>
-                    <div class="wa-avatar">⚡</div>
+                    <button class="btn-wa-back" id="btnClosePhone" aria-label="Saha alarm penceresini kapat"><svg class="ui-icon" aria-hidden="true"><use href="#icon-arrow-left"></use></svg></button>
+                    <div class="wa-avatar"><svg class="ui-icon" aria-hidden="true"><use href="#icon-bot"></use></svg></div>
                     <div class="wa-contact-info">
                         <strong>ADM / GDZ SCADA Acil Servis</strong>
                         <span>Çevrimiçi | Kurumsal Erken Uyarı Botu</span>
                     </div>
+                </div>
+
+                <!-- Channel Switcher Tabs: WhatsApp vs Cellular GSM / SMS -->
+                <div class="notif-channel-tabs" id="notifChannelTabs">
+                    <button type="button" class="notif-tab active" id="tabChannelWhatsapp" data-channel="whatsapp">
+                        <svg class="ui-icon" style="width:13px;height:13px;" aria-hidden="true"><use href="#icon-chat"></use></svg>
+                        <span>WhatsApp Görünümü</span>
+                    </button>
+                    <button type="button" class="notif-tab" id="tabChannelSms" data-channel="sms">
+                        <svg class="ui-icon" style="width:13px;height:13px;" aria-hidden="true"><use href="#icon-register"></use></svg>
+                        <span>GSM / SMS Metin Formatı</span>
+                    </button>
                 </div>
 
                 <!-- WhatsApp Messages Container -->
@@ -366,20 +743,34 @@
                     <!-- Messages dynamically injected -->
                 </div>
 
-                <!-- Chat Footer Input Mock -->
-                <div class="wa-chat-footer">
-                    <span class="emoji-btn">😊</span>
+                <!-- Cellular GSM / SMS Messages Container -->
+                <div class="sms-messages-container" id="smsMessagesContainer" style="display: none;">
+                    <div class="sms-feed-header">
+                        <span class="sms-modem-tag">HÜCRESEL GSM HATTI (SIM900 / TELIT EDGE MODEM)</span>
+                        <span class="sms-baud-tag">9600 BAUD · AT+CMGS</span>
+                    </div>
+                    <div class="sms-feed" id="smsFeed">
+                        <!-- SMS formatted cards dynamically injected -->
+                    </div>
+                </div>
+
+                <!-- Chat Footer Input Mock (WhatsApp only) -->
+                <div class="wa-chat-footer" id="waChatFooter">
+                    <span class="compose-btn" aria-hidden="true"><svg class="ui-icon"><use href="#icon-chat"></use></svg></span>
                     <input type="text" placeholder="Saha ekibi yanıtı..." readonly>
-                    <span class="send-btn">➤</span>
+                    <span class="send-btn" aria-hidden="true"><svg class="ui-icon"><use href="#icon-send"></use></svg></span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="js/digital_twin.js"></script>
-    <script src="js/charts.js"></script>
-    <script src="js/whatsapp_modal.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/digital_twin.js?v=20260920_rev45"></script>
+    <script src="js/charts.js?v=20260920_rev45"></script>
+    <script src="js/whatsapp_modal.js?v=20260920_rev45"></script>
+    <script src="js/client_engine.js?v=20260920_rev45"></script>
+    <script src="js/app.js?v=20260920_rev45"></script>
 </body>
 </html>
+
+
